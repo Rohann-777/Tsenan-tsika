@@ -7,6 +7,7 @@ CREATE TABLE utilisateur (
     role VARCHAR(20) NOT NULL
 );
 
+
 CREATE TABLE agent_collecte (
     id INTEGER PRIMARY KEY,
     districtAssigne VARCHAR(100) NOT NULL,
