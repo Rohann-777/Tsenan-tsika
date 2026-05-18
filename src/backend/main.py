@@ -16,7 +16,9 @@ La documentation interactive Swagger sera disponible sur http://localhost:8000/d
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.backend.routes import prix_routes, itineraire_routes, saisie_routes
+from src.backend.routes import (
+    prix_routes, itineraire_routes, saisie_routes, alerte_routes
+)
 
 
 # Création de l'application FastAPI avec ses métadonnées
@@ -51,6 +53,7 @@ app.add_middleware(
 app.include_router(prix_routes.router)
 app.include_router(itineraire_routes.router)
 app.include_router(saisie_routes.router)
+app.include_router(alerte_routes.router)
 
 
 @app.get("/")
