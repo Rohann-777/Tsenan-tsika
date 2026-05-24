@@ -139,8 +139,17 @@ class SaisieService:
         if prix_moyen_recent and prix_moyen_recent > 0:
             variation_pourcent = ((prix - prix_moyen_recent) / prix_moyen_recent) * 100
             
-            # Étape 7 : Mise à jour du Top-k avec la variation
-            top_k_global.mettre_a_jour(produit_id, variation_pourcent)
+            # Mise à jour du Top-k uniquement si la variation est positive
+            # car le Top-k a pour vocation de classer les hausses de prix anormales.
+            # Les baisses de prix ne représentent pas des anomalies à signaler dans
+            # le contexte de surveillance contre la spéculation et les pénuries.
+            if variation_pourcent > 0:
+                top_k_global.mettre_a_jour(produit_id, variation_pourcent)
+                
+                # Déclenchement d'alerte uniquement pour les hausses dépassant le seuil
+                if variation_pourcent >= self.SEUIL_ALERTE_POURCENT:
+                    self.repository.creer_alerte(db, produit_id, ville_id)
+                    alerte_declenchee = True
             
             # Étape 8 : Déclenchement d'alerte si la variation dépasse le seuil
             if variation_pourcent >= self.SEUIL_ALERTE_POURCENT:

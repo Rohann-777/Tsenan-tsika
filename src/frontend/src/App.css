@@ -1,0 +1,170 @@
+/* Importation des polices Google Fonts utilisées dans Tsenan'tsika.
+   Plus Jakarta Sans apporte le caractère moderne aux titres tandis
+   qu'Inter offre une lisibilité optimale pour le texte courant. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Variables CSS qui définissent toutes les constantes visuelles
+   de l'application. Cette centralisation permet de modifier
+   l'apparence globale en changeant seulement ces valeurs. */
+:root {
+  /* Palette principale qui définit l'identité visuelle de Tsenan'tsika.
+     Le vert émeraude évoque l'agriculture et la croissance, l'orange
+     rappelle la terre malgache, et le bleu marine ancre l'application
+     dans son caractère institutionnel. */
+  --couleur-primaire: #059669;
+  --couleur-primaire-claire: #10b981;
+  --couleur-primaire-foncee: #047857;
+  --couleur-primaire-tres-claire: #d1fae5;
+  
+  --couleur-secondaire: #ea580c;
+  --couleur-secondaire-claire: #f97316;
+  --couleur-secondaire-foncee: #c2410c;
+  --couleur-secondaire-tres-claire: #ffedd5;
+  
+  --couleur-tertiaire: #1e3a8a;
+  --couleur-tertiaire-claire: #3b82f6;
+  --couleur-tertiaire-foncee: #1e40af;
+  --couleur-tertiaire-tres-claire: #dbeafe;
+  
+  /* Échelle de gris sophistiquée pour les textes et les fonds.
+     Cette gradation permet d'établir une hiérarchie visuelle subtile
+     entre les différents niveaux d'information. */
+  --gris-50: #f9fafb;
+  --gris-100: #f3f4f6;
+  --gris-200: #e5e7eb;
+  --gris-300: #d1d5db;
+  --gris-400: #9ca3af;
+  --gris-500: #6b7280;
+  --gris-600: #4b5563;
+  --gris-700: #374151;
+  --gris-800: #1f2937;
+  --gris-900: #111827;
+  
+  /* Couleurs fonctionnelles pour les états et messages système. */
+  --succes: #10b981;
+  --succes-clair: #d1fae5;
+  --erreur: #ef4444;
+  --erreur-clair: #fee2e2;
+  --avertissement: #f59e0b;
+  --avertissement-clair: #fef3c7;
+  --info: #3b82f6;
+  --info-clair: #dbeafe;
+  
+  /* Espacements basés sur une échelle harmonique de 4 pixels.
+     Cette cohérence donne un rythme visuel agréable à l'interface. */
+  --espace-xs: 0.25rem;
+  --espace-sm: 0.5rem;
+  --espace-md: 1rem;
+  --espace-lg: 1.5rem;
+  --espace-xl: 2rem;
+  --espace-2xl: 3rem;
+  --espace-3xl: 4rem;
+  
+  /* Rayons de bordure pour les coins arrondis cohérents. */
+  --rayon-sm: 0.375rem;
+  --rayon-md: 0.5rem;
+  --rayon-lg: 0.75rem;
+  --rayon-xl: 1rem;
+  --rayon-full: 9999px;
+  
+  /* Ombres portées sophistiquées qui créent une sensation de profondeur.
+     Les ombres modernes utilisent des opacités faibles et des décalages
+     subtils pour un effet naturel. */
+  --ombre-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ombre-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --ombre-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --ombre-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transitions standardisées pour toutes les animations.
+     L'utilisation d'une courbe d'accélération naturelle imite
+     le mouvement des objets physiques. */
+  --transition-rapide: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-standard: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-lente: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Polices typographiques. */
+  --police-titre: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --police-corps: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Réinitialisation moderne des styles par défaut du navigateur. */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--police-corps);
+  background-color: var(--gris-50);
+  color: var(--gris-900);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Application de la police de titre à tous les niveaux de titres. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--police-titre);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--gris-900);
+}
+
+/* Conteneur principal de l'application. */
+.application {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animations réutilisables pour les apparitions d'éléments. */
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes apparitionRapide {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Classes utilitaires pour appliquer les animations facilement. */
+.animation-apparition {
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animation-apparition-rapide {
+  animation: apparitionRapide 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Délais d'animation décalés pour créer des effets en cascade. */
+.delai-1 { animation-delay: 100ms; }
+.delai-2 { animation-delay: 200ms; }
+.delai-3 { animation-delay: 300ms; }
+.delai-4 { animation-delay: 400ms; }
+.delai-5 { animation-delay: 500ms; }

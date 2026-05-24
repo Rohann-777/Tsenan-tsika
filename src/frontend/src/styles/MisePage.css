@@ -1,0 +1,272 @@
+/* Styles pour la mise en page partagée de toutes les pages internes
+   de Tsenan'tsika. Ce fichier définit la barre de navigation moderne
+   qui s'adapte au rôle de l'utilisateur et le pied de page discret. */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Conteneur principal de la mise en page qui occupe toute la hauteur
+   de la fenêtre et organise les trois zones principales en colonne. */
+.mise-page {
+  --couleur-primaire: #059669;
+  --couleur-primaire-claire: #10b981;
+  --couleur-primaire-foncee: #047857;
+  --couleur-primaire-tres-claire: #d1fae5;
+  
+  --couleur-secondaire: #ea580c;
+  --couleur-secondaire-claire: #f97316;
+  
+  --couleur-tertiaire: #1e3a8a;
+  --couleur-tertiaire-foncee: #1e40af;
+  
+  --gris-50: #f9fafb;
+  --gris-100: #f3f4f6;
+  --gris-200: #e5e7eb;
+  --gris-300: #d1d5db;
+  --gris-400: #9ca3af;
+  --gris-500: #6b7280;
+  --gris-600: #4b5563;
+  --gris-700: #374151;
+  --gris-800: #1f2937;
+  --gris-900: #111827;
+  
+  --espace-xs: 0.25rem;
+  --espace-sm: 0.5rem;
+  --espace-md: 1rem;
+  --espace-lg: 1.5rem;
+  --espace-xl: 2rem;
+  --espace-2xl: 3rem;
+  
+  --rayon-sm: 0.375rem;
+  --rayon-md: 0.5rem;
+  --rayon-lg: 0.75rem;
+  --rayon-full: 9999px;
+  
+  --ombre-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ombre-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --ombre-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  
+  --transition-rapide: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-standard: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --police-titre: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --police-corps: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--gris-50);
+  font-family: var(--police-corps);
+  color: var(--gris-900);
+}
+
+/* Barre de navigation moderne avec effet de verre dépoli et ombre subtile.
+   Cette barre reste fixe en haut de la page pendant que l'utilisateur
+   fait défiler le contenu, ce qui garantit qu'elle reste toujours accessible. */
+.barre-navigation {
+  background-color: white;
+  border-bottom: 1px solid var(--gris-200);
+  padding: 0 var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.contenu-navigation {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+/* Logo et nom de l'application à gauche de la barre. */
+.logo-navigation {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+  text-decoration: none;
+  color: inherit;
+}
+
+.icone-logo-nav {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--ombre-md);
+}
+
+.texte-logo-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.nom-app-nav {
+  font-family: var(--police-titre);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--gris-900);
+  line-height: 1.2;
+}
+
+.sous-titre-nav {
+  font-size: 0.75rem;
+  color: var(white);
+}
+
+/* Menu de navigation principal au centre de la barre. */
+.menu-navigation {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-xs);
+  list-style: none;
+}
+
+.lien-navigation {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  padding: var(--espace-sm) var(--espace-md);
+  color: var(--gris-600);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--rayon-md);
+  transition: all var(--transition-standard);
+  position: relative;
+}
+
+.lien-navigation:hover {
+  color: var(--couleur-primaire);
+  background-color: var(--couleur-primaire-tres-claire);
+}
+
+.lien-navigation.actif {
+  color: var(--couleur-primaire);
+  background-color: var(--couleur-primaire-tres-claire);
+  font-weight: 600;
+}
+
+/* Section du profil utilisateur à droite de la barre. */
+.profil-utilisateur {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+}
+
+.info-utilisateur {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.nom-utilisateur {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gris-900);
+  line-height: 1.2;
+}
+
+.role-utilisateur {
+  font-size: 0.75rem;
+  color: var(white);
+  text-transform: capitalize;
+}
+
+.avatar-utilisateur {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--couleur-secondaire) 0%, var(--couleur-secondaire-claire) 100%);
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  box-shadow: var(--ombre-md);
+}
+
+.bouton-deconnexion {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  padding: var(--espace-sm) var(--espace-md);
+  background-color: white;
+  color: var(--gris-600);
+  border: 1px solid var(--gris-200);
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition-standard);
+}
+
+.bouton-deconnexion:hover {
+  color: #ef4444;
+  border-color: #fecaca;
+  background-color: #fef2f2;
+}
+
+/* Zone principale qui contient le contenu de la page courante.
+   Cette zone prend tout l'espace disponible entre la barre et le pied. */
+.zone-principale {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: var(--espace-xl);
+}
+
+/* Pied de page discret avec les informations institutionnelles. */
+.pied-page {
+  background-color: white;
+  border-top: 1px solid var(--gris-200);
+  padding: var(--espace-lg) var(--espace-xl);
+  margin-top: auto;
+}
+
+.contenu-pied {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--espace-md);
+}
+
+.copyright-pied {
+  color: var(--gris-500);
+  font-size: 0.8125rem;
+}
+
+.liens-pied {
+  display: flex;
+  gap: var(--espace-lg);
+  font-size: 0.8125rem;
+  color: var(--gris-500);
+}
+
+/* Adaptation pour les écrans plus petits. */
+@media (max-width: 768px) {
+  .menu-navigation {
+    display: none;
+  }
+  
+  .info-utilisateur {
+    display: none;
+  }
+  
+  .zone-principale {
+    padding: var(--espace-md);
+  }
+}

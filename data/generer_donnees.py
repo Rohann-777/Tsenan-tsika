@@ -176,64 +176,86 @@ def generer_connexions(db, villes):
     return connexions
 
 
-def generer_utilisateurs(db):
+def generer_utilisateurs(db, villes):
     """
-    Crée des utilisateurs de test pour chaque rôle du système.
-    Les mots de passe sont hachés avec bcrypt avant stockage,
-    conformément aux contraintes de sécurité du projet.
+    Crée des utilisateurs de test pour chaque rôle du système avec
+    leurs nouveaux attributs de statut de compte et ville assignée.
     
-    Les utilisateurs créés correspondent aux quatre acteurs définis
-    dans le diagramme de cas d'utilisation : agents de collecte,
-    analystes, citoyens et administrateurs.
+    Les agents de collecte sont assignés à des villes spécifiques pour
+    refléter la réalité du déploiement sur le terrain. Les autres rôles
+    n'ont pas de ville assignée car ils opèrent depuis le ministère ou
+    consultent le système à distance. Tous les comptes sont actifs par
+    défaut, l'administrateur pouvant les désactiver ultérieurement si
+    nécessaire via la fonctionnalité de gestion des utilisateurs.
     """
     print("Génération des utilisateurs...")
     
+    # Création d'un dictionnaire pour retrouver facilement les villes par nom
+    villes_par_nom = {ville.nom: ville for ville in villes}
+    
     utilisateurs_data = [
-        # Administrateurs
+        # Administrateur du système qui gère les autres comptes
         {
             "nom": "Rakoto", "prenoms": "Jean",
             "email": "admin@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("admin123"),
-            "role": "administrateur"
+            "role": "administrateur",
+            "statut_compte": True,
+            "ville_assignee_id": None
         },
-        # Analystes du ministère
+        # Analystes du ministère qui travaillent depuis Antananarivo
         {
             "nom": "Razafindrabe", "prenoms": "Marie",
             "email": "marie.analyste@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("analyste123"),
-            "role": "analyste"
+            "role": "analyste",
+            "statut_compte": True,
+            "ville_assignee_id": None
         },
         {
             "nom": "Andrianarisoa", "prenoms": "Paul",
             "email": "paul.analyste@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("analyste123"),
-            "role": "analyste"
+            "role": "analyste",
+            "statut_compte": True,
+            "ville_assignee_id": None
         },
-        # Agents de collecte pour chaque ville pilote
+        # Agents de collecte assignés à différentes villes pilotes
+        # Sophie couvre Antananarivo qui est la capitale
         {
             "nom": "Rasoamanarivo", "prenoms": "Sophie",
             "email": "sophie.agent@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("agent123"),
-            "role": "agent"
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Antananarivo"].id
         },
+        # Pierre couvre Toamasina, le grand port de l'est
         {
             "nom": "Ratsimba", "prenoms": "Pierre",
             "email": "pierre.agent@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("agent123"),
-            "role": "agent"
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Toamasina"].id
         },
+        # Claire couvre Fianarantsoa dans les hauts plateaux du sud
         {
             "nom": "Andriamanantena", "prenoms": "Claire",
             "email": "claire.agent@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("agent123"),
-            "role": "agent"
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Fianarantsoa"].id
         },
-        # Citoyens
+        # Citoyen qui consulte le système sans ville assignée
         {
             "nom": "Rakotonirina", "prenoms": "Tiana",
             "email": "tiana.citoyen@tsenantsika.mg",
             "mot_de_passe": hacher_mot_de_passe("citoyen123"),
-            "role": "citoyen"
+            "role": "citoyen",
+            "statut_compte": True,
+            "ville_assignee_id": None
         }
     ]
     
@@ -244,7 +266,7 @@ def generer_utilisateurs(db):
         utilisateurs.append(utilisateur)
     
     db.commit()
-    print(f"  - {len(utilisateurs)} utilisateurs créés.")
+    print(f"  - {len(utilisateurs)} utilisateurs créés avec assignations.")
     return utilisateurs
 
 
@@ -355,16 +377,13 @@ def generer_alertes(db, villes, produits):
 
 def executer_generation():
     """
-    Fonction principale qui orchestre la génération complète des
-    données dans le bon ordre.
+    Fonction principale qui orchestre la génération complète des données.
     """
     print("=" * 60)
     print("Génération des données synthétiques pour Tsenan'tsika")
     print("=" * 60)
     
-    # Fixation de la graine aléatoire pour reproductibilité
     random.seed(42)
-    
     db = SessionLocal()
     
     try:
@@ -372,7 +391,8 @@ def executer_generation():
         villes = generer_villes(db)
         produits = generer_produits(db)
         generer_connexions(db, villes)
-        utilisateurs = generer_utilisateurs(db)
+        # Les utilisateurs sont créés après les villes pour permettre l'assignation
+        utilisateurs = generer_utilisateurs(db, villes)
         generer_historique_prix(db, villes, produits, utilisateurs)
         generer_alertes(db, villes, produits)
         
@@ -382,7 +402,9 @@ def executer_generation():
         print("\nIdentifiants de test pour la connexion :")
         print("  Administrateur : admin@tsenantsika.mg / admin123")
         print("  Analyste       : marie.analyste@tsenantsika.mg / analyste123")
-        print("  Agent          : sophie.agent@tsenantsika.mg / agent123")
+        print("  Agent Antananarivo : sophie.agent@tsenantsika.mg / agent123")
+        print("  Agent Toamasina    : pierre.agent@tsenantsika.mg / agent123")
+        print("  Agent Fianarantsoa : claire.agent@tsenantsika.mg / agent123")
         print("  Citoyen        : tiana.citoyen@tsenantsika.mg / citoyen123")
         
     except Exception as e:

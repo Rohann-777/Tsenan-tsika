@@ -22,27 +22,21 @@ from src.backend.config.database import Base
 
 class Utilisateur(Base):
     """
-    Modèle pour la table utilisateur qui stocke les comptes des
-    quatre types d'utilisateurs du système : agents de collecte,
-    analystes, citoyens et administrateurs.
-    
-    Le rôle est stocké comme une chaîne de caractères pour faciliter
-    l'extension future à de nouveaux types d'utilisateurs sans
-    nécessiter de migration de schéma.
+    Modèle représentant un utilisateur du système Tsenan'tsika.
     """
     __tablename__ = "utilisateur"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     nom = Column(String(100), nullable=False)
     prenoms = Column(String(100), nullable=False)
+    email = Column(String(150), unique=True, nullable=False, index=True)
     mot_de_passe = Column(String(255), nullable=False)
-    email = Column(String(120), unique=True, nullable=False)
     role = Column(String(20), nullable=False)
+    statut_compte = Column(Boolean, nullable=False, default=True)
+    ville_assignee_id = Column(Integer, ForeignKey("ville.id"), nullable=True)
     
-    # Relation inverse vers les rapports soumis par cet utilisateur
-    # Cette relation est utilisée uniquement quand l'utilisateur est un agent
-    rapports = relationship("RapportPrix", back_populates="agent")
-    prix_marche = relationship("PrixMarche", back_populates="agent")
+    # Relation simple vers la ville assignée pour les agents
+    ville_assignee = relationship("Ville", foreign_keys=[ville_assignee_id])
 
 
 class Produit(Base):
@@ -157,7 +151,7 @@ class RapportPrix(Base):
     # Relations vers les entités liées
     produit = relationship("Produit", back_populates="rapports")
     ville = relationship("Ville", back_populates="rapports")
-    agent = relationship("Utilisateur", back_populates="rapports")
+    agent = relationship("Utilisateur")
 
 
 class PrixMarche(Base):
@@ -180,7 +174,7 @@ class PrixMarche(Base):
     # Relations vers les entités liées
     produit = relationship("Produit", back_populates="prix_marche")
     ville = relationship("Ville", back_populates="prix_marche")
-    agent = relationship("Utilisateur", back_populates="prix_marche")
+    agent = relationship("Utilisateur")
 
 
 class Alerte(Base):
