@@ -1,16 +1,10 @@
-// Page de surveillance des doublons pour l'administrateur de Tsenan'tsika.
-// Cette page affiche tous les rapports de prix qui ont été détectés
-// comme dupliqués par l'algorithme Rabin-Karp lors de leur soumission.
-// L'administrateur peut analyser ces doublons pour identifier d'éventuels
-// comportements problématiques chez certains agents ou des dysfonctionnements
-// techniques dans le système de collecte.
-
 import { useState, useEffect } from 'react';
 import {
-  ShieldAlert, Calendar, MapPin, Package,
-  User, Filter, AlertTriangle, Search
+  ShieldAlert, AlertTriangle, Search, User, Package,
+  MapPin, Calendar, Info, CheckCircle2, Award
 } from 'lucide-react';
 import { serviceAdmin } from '../services/api';
+import '../styles/PageSurveillanceDoublons.css';
 
 function PageSurveillanceDoublons() {
   const [doublons, setDoublons] = useState([]);
@@ -30,14 +24,13 @@ function PageSurveillanceDoublons() {
       setDoublons(donnees);
       setErreur(null);
     } catch (err) {
-      setErreur('Impossible de charger les doublons');
+      setErreur('Impossible de charger les doublons. Vérifiez que le serveur backend est démarré.');
       console.error(err);
     } finally {
       setChargement(false);
     }
   };
 
-  // Filtrage des doublons selon la recherche textuelle
   const doublonsFiltres = doublons.filter(d => {
     if (!recherche) return true;
     const termeRecherche = recherche.toLowerCase();
@@ -48,9 +41,6 @@ function PageSurveillanceDoublons() {
     );
   });
 
-  // Calcul des statistiques de surveillance pour les administrateurs.
-  // Cette analyse aide à identifier rapidement les agents les plus
-  // concernés par les détections de doublons.
   const statistiquesParAgent = doublons.reduce((acc, d) => {
     if (!acc[d.agent_id]) {
       acc[d.agent_id] = {
@@ -67,7 +57,6 @@ function PageSurveillanceDoublons() {
     .sort((a, b) => b.nombre - a.nombre)
     .slice(0, 3);
 
-  // Formatage de la date pour un affichage lisible en français
   const formaterDate = (dateIso) => {
     const date = new Date(dateIso);
     return date.toLocaleDateString('fr-FR', {
@@ -81,120 +70,132 @@ function PageSurveillanceDoublons() {
 
   if (chargement) {
     return (
-      <div className="carte">
-        <h2>Surveillance des doublons</h2>
-        <div className="message-info">Chargement en cours...</div>
+      <div className="page-surveillance-doublons">
+        <div className="entete-surveillance">
+          <div className="contenu-entete-surveillance">
+            <div className="icone-surveillance-grande">
+              <ShieldAlert size={32} />
+            </div>
+            <div className="texte-entete-surveillance">
+              <h1 className="titre-surveillance">Chargement en cours...</h1>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Carte d'en-tête avec titre et description du rôle de cette page */}
-      <div className="carte">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldAlert size={28} />
-              Surveillance des doublons
-            </h2>
-            <p style={{ color: '#6b7280', marginTop: '0.5rem' }}>
-              Consultez les rapports identifiés comme doublons par l'algorithme Rabin-Karp 
-              pour analyser les comportements de soumission et détecter d'éventuelles anomalies.
+    <div className="page-surveillance-doublons">
+      
+      {/* En-tête avec présentation et compteur principal. */}
+      <div className="entete-surveillance">
+        <div className="contenu-entete-surveillance">
+          <div className="icone-surveillance-grande">
+            <ShieldAlert size={32} />
+          </div>
+          <div className="texte-entete-surveillance">
+            <h1 className="titre-surveillance">Surveillance des doublons</h1>
+            <p className="description-surveillance">
+              Consultez les rapports identifiés comme doublons par l'algorithme 
+              Rabin-Karp pour analyser les comportements de soumission.
             </p>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#dc2626' }}>
-              {doublons.length}
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
-              doublons sur {periodeJours} jours
-            </div>
+        </div>
+        
+        <div className="compteur-doublons-principal">
+          <div className="nombre-doublons-grand">{doublons.length}</div>
+          <div className="label-doublons-grand">
+            Doublons sur {periodeJours} jours
           </div>
         </div>
       </div>
 
-      {/* Carte de statistiques rapides pour identifier les patterns */}
+      {/* Section podium des agents avec le plus de doublons. */}
       {agentsAvecPlusDeDoublons.length > 0 && (
-        <div className="carte">
-          <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <AlertTriangle size={20} color="#f59e0b" />
+        <div className="section-podium-agents">
+          <h2 className="titre-podium">
+            <Award size={22} color="var(--avertissement)" />
             Agents avec le plus de doublons détectés
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            {agentsAvecPlusDeDoublons.map((agent, index) => (
-              <div
-                key={agent.id}
-                style={{
-                  padding: '1rem',
-                  backgroundColor: index === 0 ? '#fef3c7' : '#f3f4f6',
-                  borderRadius: '0.5rem',
-                  borderLeft: `4px solid ${index === 0 ? '#f59e0b' : '#9ca3af'}`
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <User size={16} />
-                  <strong>{agent.nom}</strong>
+          </h2>
+          <p className="description-podium">
+            Ces agents apparaissent le plus fréquemment dans les doublons détectés. 
+            Une présence répétée peut indiquer un problème technique ou un comportement à analyser.
+          </p>
+          <div className="grille-podium">
+            {agentsAvecPlusDeDoublons.map((agent, index) => {
+              const rang = index + 1;
+              return (
+                <div key={agent.id} className={`carte-agent-podium podium-${rang}`}>
+                  <div className={`rang-podium rang-${rang}`}>
+                    {rang}
+                  </div>
+                  <div className="contenu-agent-podium">
+                    <div className="nom-agent-podium">{agent.nom}</div>
+                    <div className="nombre-doublons-agent">
+                      {agent.nombre}
+                      <span className="label-doublons-agent">
+                        doublon{agent.nombre > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937' }}>
-                  {agent.nombre} doublon{agent.nombre > 1 ? 's' : ''}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Carte de filtres pour la période et la recherche */}
-      <div className="carte">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '1rem' }}>
-          <div style={{ position: 'relative' }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-            <input
-              type="text"
-              placeholder="Rechercher par agent, produit ou ville..."
-              value={recherche}
-              onChange={(e) => setRecherche(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem 0.75rem 0.75rem 2.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.375rem',
-                fontSize: '0.95rem'
-              }}
-            />
-          </div>
-          <select
-            value={periodeJours}
-            onChange={(e) => setPeriodeJours(parseInt(e.target.value))}
-            style={{
-              padding: '0.75rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '0.375rem',
-              fontSize: '0.95rem'
-            }}
-          >
-            <option value={7}>7 derniers jours</option>
-            <option value={30}>30 derniers jours</option>
-            <option value={90}>90 derniers jours</option>
-            <option value={365}>1 année</option>
-          </select>
+      {/* Barre de filtrage et recherche. */}
+      <div className="barre-filtres-surveillance">
+        <div className="conteneur-recherche-doublons">
+          <Search size={18} className="icone-recherche-doublons" />
+          <input
+            type="text"
+            className="input-recherche-doublons"
+            placeholder="Rechercher par agent, produit ou ville..."
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+          />
         </div>
+        <select
+          className="select-periode"
+          value={periodeJours}
+          onChange={(e) => setPeriodeJours(parseInt(e.target.value))}
+        >
+          <option value={7}>7 derniers jours</option>
+          <option value={30}>30 derniers jours</option>
+          <option value={90}>90 derniers jours</option>
+          <option value={365}>1 année</option>
+        </select>
       </div>
 
-      {/* Carte avec la liste détaillée des doublons */}
-      <div className="carte">
-        {erreur && <div className="message-erreur">{erreur}</div>}
+      {/* Tableau détaillé des doublons ou message d'état vide. */}
+      <div className="carte-tableau-doublons">
+        {erreur && (
+          <div className="message-erreur-modal" style={{ margin: 'var(--espace-md)' }}>
+            <AlertTriangle size={18} />
+            {erreur}
+          </div>
+        )}
         
         {doublonsFiltres.length === 0 ? (
-          <div className="message-info">
-            {recherche 
-              ? 'Aucun doublon ne correspond aux critères de recherche.'
-              : 'Aucun doublon détecté sur cette période. Le système fonctionne normalement.'
-            }
+          <div className="etat-vide-doublons">
+            <div className="icone-etat-vide-doublons">
+              <CheckCircle2 size={40} />
+            </div>
+            <div className="titre-etat-vide-doublons">
+              {recherche ? 'Aucun résultat' : 'Système sain'}
+            </div>
+            <div className="description-etat-vide-doublons">
+              {recherche 
+                ? 'Aucun doublon ne correspond aux critères de recherche. Essayez d\'élargir la période ou de modifier les termes de recherche.'
+                : 'Aucun doublon n\'a été détecté sur cette période. Le système fonctionne normalement et les agents soumettent des données uniques.'
+              }
+            </div>
           </div>
         ) : (
-          <table className="tableau-donnees">
+          <table className="tableau-doublons-moderne">
             <thead>
               <tr>
                 <th>Date de soumission</th>
@@ -208,31 +209,31 @@ function PageSurveillanceDoublons() {
               {doublonsFiltres.map((doublon) => (
                 <tr key={doublon.id}>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Calendar size={16} color="#6b7280" />
+                    <div className="cellule-icone">
+                      <Calendar size={16} />
                       {formaterDate(doublon.date_heure)}
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Package size={16} color="#6b7280" />
-                      <strong>{doublon.produit_nom}</strong>
+                    <div className="cellule-icone">
+                      <Package size={16} />
+                      <span className="cellule-produit-doublon">{doublon.produit_nom}</span>
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <MapPin size={16} color="#6b7280" />
+                    <div className="cellule-icone">
+                      <MapPin size={16} />
                       {doublon.ville_nom}
                     </div>
                   </td>
                   <td>
-                    <strong style={{ color: '#dc2626' }}>
+                    <span className="cellule-prix-doublon">
                       {doublon.prix.toLocaleString('fr-FR')} Ar
-                    </strong>
+                    </span>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <User size={16} color="#6b7280" />
+                    <div className="cellule-icone">
+                      <User size={16} />
                       {doublon.agent_nom}
                     </div>
                   </td>
@@ -243,17 +244,23 @@ function PageSurveillanceDoublons() {
         )}
       </div>
 
-      {/* Section d'explication pédagogique sur le fonctionnement de la détection */}
-      <div className="carte">
-        <h3 style={{ marginBottom: '0.5rem' }}>À propos de la détection de doublons</h3>
-        <p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-          Le système utilise l'algorithme Rabin-Karp pour détecter automatiquement 
-          les rapports identiques soumis dans les vingt-quatre heures précédentes. 
-          Chaque rapport est transformé en une empreinte numérique unique, puis 
-          comparé aux empreintes des soumissions récentes. En cas de correspondance, 
-          le rapport est marqué comme doublon et n'est pas intégré aux statistiques 
-          du système, mais il reste enregistré pour permettre cette surveillance.
-        </p>
+      {/* Section explicative sur le fonctionnement de Rabin-Karp. */}
+      <div className="section-info-rabin-karp">
+        <div className="icone-info-rabin">
+          <Info size={24} />
+        </div>
+        <div className="contenu-info-rabin">
+          <div className="titre-info-rabin">À propos de la détection de doublons</div>
+          <div className="texte-info-rabin">
+            Le système utilise l'algorithme Rabin-Karp pour détecter automatiquement 
+            les rapports identiques soumis dans les vingt-quatre heures précédentes. 
+            Chaque rapport est transformé en une empreinte numérique unique via une 
+            fonction de hachage, puis comparé aux empreintes des soumissions récentes. 
+            En cas de correspondance, le rapport est marqué comme doublon et n'est 
+            pas intégré aux statistiques du système, mais il reste enregistré pour 
+            permettre cette surveillance.
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,395 @@
+/* Styles spécifiques à la page de calcul d'itinéraire de Tsenan'tsika.
+   Toutes les couleurs utilisent les variables CSS du thème global pour
+   une adaptation parfaite entre les modes clair et sombre. */
+
+.page-itineraire {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xl);
+  max-width: 1000px;
+  margin: 0 auto;
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* En-tête contextuel qui présente la fonctionnalité aux analystes. */
+.entete-itineraire {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-lg);
+}
+
+.icone-itineraire-grande {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--couleur-tertiaire) 0%, var(--couleur-tertiaire-foncee) 100%);
+  border-radius: var(--rayon-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--ombre-md);
+  flex-shrink: 0;
+}
+
+.contenu-entete-itineraire {
+  flex: 1;
+}
+
+.titre-itineraire {
+  font-family: var(--police-titre);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-xs);
+}
+
+.description-itineraire {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Carte du formulaire de sélection des villes. */
+.carte-formulaire-itineraire {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+}
+
+.titre-formulaire-itineraire {
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-lg);
+  padding-bottom: var(--espace-md);
+  border-bottom: 1px solid var(--bordure);
+}
+
+/* Disposition spéciale en colonnes pour départ et destination. */
+.selection-villes {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--espace-md);
+  align-items: end;
+  margin-bottom: var(--espace-lg);
+}
+
+.fleche-direction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--fond-survol);
+  color: var(--couleur-tertiaire);
+  border-radius: var(--rayon-full);
+  margin-bottom: var(--espace-xs);
+}
+
+.input-itineraire {
+  width: 100%;
+  padding: var(--espace-md);
+  font-family: var(--police-corps);
+  font-size: 1rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  transition: all var(--transition-standard);
+  outline: none;
+}
+
+.input-itineraire:focus {
+  background-color: var(--fond-secondaire);
+  border-color: var(--couleur-tertiaire);
+  box-shadow: 0 0 0 4px var(--couleur-tertiaire-tres-claire);
+}
+
+.bouton-calculer {
+  width: 100%;
+  padding: var(--espace-md) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--couleur-tertiaire) 0%, var(--couleur-tertiaire-foncee) 100%);
+  border: none;
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  transition: all var(--transition-standard);
+  box-shadow: var(--ombre-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espace-sm);
+}
+
+.bouton-calculer:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-lg);
+}
+
+.bouton-calculer:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Carte du résultat de l'itinéraire calculé. */
+.carte-resultat-itineraire {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  animation: apparition 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.entete-resultat-itineraire {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--espace-lg);
+  padding-bottom: var(--espace-md);
+  border-bottom: 1px solid var(--bordure);
+  flex-wrap: wrap;
+  gap: var(--espace-md);
+}
+
+.titre-resultat-itineraire {
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.cout-total-badge {
+  background: linear-gradient(135deg, var(--couleur-tertiaire) 0%, var(--couleur-tertiaire-foncee) 100%);
+  color: white;
+  padding: var(--espace-sm) var(--espace-lg);
+  border-radius: var(--rayon-full);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  box-shadow: var(--ombre-md);
+}
+
+/* Représentation visuelle du chemin avec design en ligne de transport. */
+.chemin-visuel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--espace-lg) 0;
+}
+
+.etape-chemin {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--espace-md);
+  position: relative;
+}
+
+.connecteur-etape {
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -16px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--couleur-tertiaire) 0%, var(--couleur-tertiaire-claire) 100%);
+}
+
+.etape-chemin:last-child .connecteur-etape {
+  display: none;
+}
+
+.point-etape {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--police-titre);
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  z-index: 1;
+  box-shadow: var(--ombre-md);
+}
+
+.point-etape.point-depart {
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+}
+
+.point-etape.point-arrivee {
+  background: linear-gradient(135deg, var(--erreur) 0%, #b91c1c 100%);
+}
+
+.point-etape.point-intermediaire {
+  background: linear-gradient(135deg, var(--couleur-tertiaire) 0%, var(--couleur-tertiaire-foncee) 100%);
+}
+
+.contenu-etape {
+  flex: 1;
+  padding: var(--espace-sm) 0;
+  margin-bottom: var(--espace-md);
+}
+
+.nom-etape {
+  font-family: var(--police-titre);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-xs);
+}
+
+.region-etape {
+  font-size: 0.875rem;
+  color: var(--texte-discret);
+}
+
+.badge-etape {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--rayon-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: var(--espace-xs);
+}
+
+.badge-etape.badge-depart {
+  background-color: var(--couleur-primaire-tres-claire);
+  color: var(--couleur-primaire-foncee);
+}
+
+.badge-etape.badge-arrivee {
+  background-color: var(--erreur-fond);
+  color: var(--erreur-texte);
+}
+
+.badge-etape.badge-intermediaire {
+  background-color: var(--couleur-tertiaire-tres-claire);
+  color: var(--couleur-tertiaire-foncee);
+}
+
+/* Tableau récapitulatif des informations du chemin. */
+.recap-itineraire {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--espace-md);
+  padding: var(--espace-lg);
+  background-color: var(--fond-principal);
+  border-radius: var(--rayon-md);
+  margin-top: var(--espace-lg);
+}
+
+.element-recap {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+}
+
+.icone-recap {
+  width: 40px;
+  height: 40px;
+  background-color: var(--couleur-tertiaire-tres-claire);
+  color: var(--couleur-tertiaire);
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contenu-recap {
+  display: flex;
+  flex-direction: column;
+}
+
+.label-recap {
+  font-size: 0.75rem;
+  color: var(--texte-discret);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.valeur-recap {
+  font-family: var(--police-titre);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+}
+
+/* Section explicative discrète sur Dijkstra. */
+.section-info-dijkstra {
+  background: linear-gradient(135deg, var(--info-fond) 0%, var(--info-fond) 100%);
+  border: 1px solid var(--info);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  display: flex;
+  gap: var(--espace-md);
+}
+
+.icone-info-dijkstra {
+  width: 48px;
+  height: 48px;
+  background-color: var(--info);
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.contenu-info-dijkstra {
+  flex: 1;
+}
+
+.titre-info-dijkstra {
+  font-weight: 700;
+  color: var(--info-texte);
+  margin-bottom: var(--espace-sm);
+  font-size: 1.0625rem;
+}
+
+.texte-info-dijkstra {
+  color: var(--info-texte);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .entete-itineraire {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .selection-villes {
+    grid-template-columns: 1fr;
+  }
+  
+  .fleche-direction {
+    margin: var(--espace-sm) auto;
+    transform: rotate(90deg);
+  }
+  
+  .titre-itineraire {
+    font-size: 1.5rem;
+  }
+}

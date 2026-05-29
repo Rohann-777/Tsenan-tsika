@@ -1,29 +1,9 @@
-"""
-Modèles SQLAlchemy pour Tsenan'tsika.
-
-Ce module définit toutes les classes qui représentent les tables
-de la base de données PostgreSQL. Chaque classe correspond à une
-table et chaque attribut de classe correspond à une colonne.
-
-Les modèles utilisent les types de SQLAlchemy plutôt que les types
-Python natifs car SQLAlchemy doit savoir comment générer le SQL
-correct pour PostgreSQL. Par exemple, on utilise String au lieu
-de str et Integer au lieu de int.
-
-Les relations entre tables sont définies via ForeignKey et
-relationship, ce qui permet à SQLAlchemy de gérer automatiquement
-les jointures et de naviguer entre les objets liés.
-"""
-
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from src.backend.config.database import Base
 
 
 class Utilisateur(Base):
-    """
-    Modèle représentant un utilisateur du système Tsenan'tsika.
-    """
     __tablename__ = "utilisateur"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -40,15 +20,6 @@ class Utilisateur(Base):
 
 
 class Produit(Base):
-    """
-    Modèle pour la table produit qui stocke les sept produits de
-    première nécessité suivis par le système.
-    
-    Le double nommage en français et en malgache permet de respecter
-    la contrainte multilingue du cahier des charges, même si nous
-    avons décidé de mettre cette fonctionnalité de côté pour le
-    prototype, la structure est prête à l'accueillir.
-    """
     __tablename__ = "produit"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -64,14 +35,6 @@ class Produit(Base):
 
 
 class Ville(Base):
-    """
-    Modèle pour la table ville qui stocke les sept villes pilotes
-    de Tsenan'tsika.
-    
-    Les coordonnées géographiques latitude et longitude sont stockées
-    pour permettre le calcul des distances entre villes et l'affichage
-    sur des cartes dans le frontend si on l'ajoute plus tard.
-    """
     __tablename__ = "ville"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -101,14 +64,6 @@ class Ville(Base):
 
 
 class ConnexionVille(Base):
-    """
-    Modèle pour la table connexion_ville qui stocke les arêtes
-    du graphe routier utilisé par Dijkstra.
-    
-    Chaque connexion représente une route directe entre deux villes
-    avec un coût de transport calculé comme distance multipliée
-    par l'indice carburant en vigueur.
-    """
     __tablename__ = "connexion_ville"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -130,14 +85,6 @@ class ConnexionVille(Base):
 
 
 class RapportPrix(Base):
-    """
-    Modèle pour la table rapport_prix qui stocke les soumissions
-    brutes des agents avant validation par Rabin-Karp.
-    
-    L'attribut est_doublon est marqué automatiquement par le système
-    quand Rabin-Karp détecte qu'un rapport identique existe déjà
-    dans les dernières 24 heures.
-    """
     __tablename__ = "rapport_prix"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -155,13 +102,6 @@ class RapportPrix(Base):
 
 
 class PrixMarche(Base):
-    """
-    Modèle pour la table prix_marche qui stocke les prix validés
-    après vérification de non-doublon.
-    
-    Ces prix sont ceux utilisés par le Fenwick Tree pour calculer
-    les moyennes et par le Top-k pour détecter les hausses anormales.
-    """
     __tablename__ = "prix_marche"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -178,14 +118,6 @@ class PrixMarche(Base):
 
 
 class Alerte(Base):
-    """
-    Modèle pour la table alerte qui stocke les alertes déclenchées
-    automatiquement par le système quand le Top-k détecte une
-    hausse anormale de prix.
-    
-    Les alertes sont affichées sur le tableau de bord des analystes
-    et peuvent être consultées par les citoyens en lecture seule.
-    """
     __tablename__ = "alerte"
     
     id = Column(Integer, primary_key=True, autoincrement=True)

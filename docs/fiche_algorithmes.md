@@ -18,7 +18,7 @@ Les entrées de l'algorithme sont la chaîne normalisée du nouveau rapport cons
 
 ### Modèle utilisé
 
-L'algorithme repose sur le hachage polynomial, une technique qui transforme une chaîne de caractères en un nombre unique en traitant la chaîne comme un nombre écrit dans une certaine base. Pour une chaîne de longueur n composée des caractères c zéro à c n moins un, le hachage est calculé selon la formule suivante. Le hachage égale c zéro multiplié par la base à la puissance n moins un, plus c un multiplié par la base à la puissance n moins deux, et ainsi de suite jusqu'à c n moins un multiplié par la base à la puissance zéro, le tout modulo un nombre premier choisi.
+L'algorithme repose sur le hachage polynomial, une technique qui transforme une chaîne de caractères en un nombre unique en traitant la chaîne comme un nombre écrit dans une certaine base. Pour une chaîne de longueur n composée des caractères c0 à c(n-1), le hachage est calculé selon la formule suivante. Le hachage égale c zéro multiplié par la base à la puissance n moins un, plus c un multiplié par la base à la puissance n moins deux, et ainsi de suite jusqu'à c n moins un multiplié par la base à la puissance zéro, le tout modulo un nombre premier choisi.
 
 Dans notre implémentation, la base utilisée est deux cent cinquante-six pour couvrir tous les caractères ASCII étendus, et le modulo est cent un qui est un nombre premier suffisamment petit pour des calculs rapides tout en limitant les collisions.
 
@@ -44,9 +44,9 @@ La structure principale utilisée par cet algorithme est la table de hachage. Le
 
 ### Analyse de complexité
 
-La fonction calculer_hachage parcourt chaque caractère de la chaîne exactement une fois en effectuant des opérations en temps constant, ce qui donne une complexité de grand O de m où m est la longueur de la chaîne. La fonction verifier_doublon parcourt les n rapports existants et effectue une comparaison de hachage en temps constant pour chacun. Quand un hachage correspond, ce qui est rare grâce au choix d'un nombre premier comme modulo, on effectue une comparaison caractère par caractère en grand O de m. La complexité totale est donc de grand O de m plus n, où n est le nombre de rapports comparés et m la longueur moyenne d'une chaîne.
+La fonction calculer_hachage parcourt chaque caractère de la chaîne exactement une fois en effectuant des opérations en temps constant, ce qui donne une complexité de O(m) où m est la longueur de la chaîne. La fonction verifier_doublon parcourt les n rapports existants et effectue une comparaison de hachage en temps constant pour chacun. Quand un hachage correspond, ce qui est rare grâce au choix d'un nombre premier comme modulo, on effectue une comparaison caractère par caractère en O(m). La complexité totale est donc de O(m+n), où n est le nombre de rapports comparés et m la longueur moyenne d'une chaîne.
 
-En comparaison, la solution naïve qui compare directement les chaînes sans hachage préalable a une complexité de grand O de n multiplié par m, car chaque comparaison de chaînes prend un temps proportionnel à leur longueur. Le gain théorique de Rabin-Karp avec hachages précalculés est donc significatif quand n et m sont grands.
+En comparaison, la solution naïve qui compare directement les chaînes sans hachage préalable a une complexité de O(n*m), car chaque comparaison de chaînes prend un temps proportionnel à leur longueur. Le gain théorique de Rabin-Karp avec hachages précalculés est donc significatif quand n et m sont grands.
 
 ### Tests et validation
 
@@ -54,7 +54,7 @@ L'algorithme a été validé par six tests unitaires couvrant la détection corr
 
 ### Résultats expérimentaux
 
-Sur un jeu de données de mille rapports existants avec cent vérifications successives, les mesures de performance ont donné les résultats suivants. La solution naïve avec comparaison directe a pris zéro virgule zéro zéro six trois sept deux secondes en moyenne par vérification. La solution Rabin-Karp avec hachages précalculés a pris zéro virgule zéro zéro zéro zéro sept quatre secondes en moyenne par vérification. Le gain de performance est donc de quatre-vingt-six fois plus rapide en faveur de Rabin-Karp.
+Sur un jeu de données de mille rapports existants avec cent vérifications successives, les mesures de performance ont donné les résultats suivants. La solution naïve avec comparaison directe a pris 0,006372 secondes en moyenne par vérification. La solution Rabin-Karp avec hachages précalculés a pris 0,000074 secondes en moyenne par vérification. Le gain de performance est donc de 86 fois plus rapide en faveur de Rabin-Karp.
 
 ---
 
@@ -107,9 +107,9 @@ La structure principale est évidemment le Fenwick Tree lui-même, qui est une v
 
 ### Analyse de complexité
 
-L'opération de mise à jour parcourt au maximum la hauteur de l'arbre implicite, qui est de l'ordre du logarithme du nombre d'éléments. La complexité d'une mise à jour est donc de grand O du logarithme de n. Le calcul d'une somme préfixe suit le même raisonnement et a également une complexité de grand O du logarithme de n. Le calcul d'une somme d'intervalle effectue deux calculs de somme préfixe, ce qui maintient la complexité à grand O du logarithme de n.
+L'opération de mise à jour parcourt au maximum la hauteur de l'arbre implicite, qui est de l'ordre du logarithme du nombre d'éléments. La complexité d'une mise à jour est donc de O(log n). Le calcul d'une somme préfixe suit le même raisonnement et a également une complexité de O(log n). Le calcul d'une somme d'intervalle effectue deux calculs de somme préfixe, ce qui maintient la complexité à O(log n).
 
-En comparaison, la solution naïve avec un simple tableau a une complexité de grand O de un pour les mises à jour mais une complexité de grand O de n pour les calculs de somme d'intervalle car il faut parcourir tous les éléments concernés. Le Fenwick Tree offre donc un excellent compromis quand les deux types d'opérations sont fréquents, ce qui est le cas dans Tsenan'tsika.
+En comparaison, la solution naïve avec un simple tableau a une complexité de O(1) pour les mises à jour mais une complexité de O(n) pour les calculs de somme d'intervalle car il faut parcourir tous les éléments concernés. Le Fenwick Tree offre donc un excellent compromis quand les deux types d'opérations sont fréquents, ce qui est le cas dans Tsenan'tsika.
 
 ### Tests et validation
 
@@ -117,7 +117,7 @@ L'algorithme a été validé par cinq tests unitaires couvrant le calcul correct
 
 ### Résultats expérimentaux
 
-Sur un jeu de données de dix mille éléments avec mille requêtes de somme d'intervalle, les mesures de performance ont donné les résultats suivants. La solution naïve avec parcours linéaire a pris zéro virgule cinq deux huit six secondes au total. La solution Fenwick Tree a pris zéro virgule zéro zéro quatre six huit quatre secondes au total. Le gain de performance est donc de cent douze fois plus rapide en faveur du Fenwick Tree.
+Sur un jeu de données de 10.000 éléments avec 1000 requêtes de somme d'intervalle, les mesures de performance ont donné les résultats suivants. La solution naïve avec parcours linéaire a pris 0,5286 secondes au total. La solution Fenwick Tree a pris 0,004684 secondes au total. Le gain de performance est donc de 112 fois plus rapide en faveur du Fenwick Tree.
 
 ---
 
@@ -186,11 +186,11 @@ La structure principale est le tas binaire minimum, qui fait partie des structur
 
 ### Analyse de complexité
 
-L'insertion d'une nouvelle variation comporte deux cas. Si le tas n'est pas encore plein, on ajoute simplement l'élément à la fin et on le fait remonter à sa place, ce qui prend au maximum la hauteur du tas, soit grand O du logarithme de k. Si le tas est plein, on compare avec la racine en temps constant, puis selon le résultat on remplace la racine et on fait descendre le nouvel élément, ce qui prend également grand O du logarithme de k. Comme k est fixé à cinq dans notre cas, le logarithme de k est essentiellement une constante très petite, ce qui rend cette opération pratiquement en temps constant.
+L'insertion d'une nouvelle variation comporte deux cas. Si le tas n'est pas encore plein, on ajoute simplement l'élément à la fin et on le fait remonter à sa place, ce qui prend au maximum la hauteur du tas, soit O(log k). Si le tas est plein, on compare avec la racine en temps constant, puis selon le résultat on remplace la racine et on fait descendre le nouvel élément, ce qui prend également O(log k). Comme k est fixé à cinq dans notre cas, le logarithme de k est essentiellement une constante très petite, ce qui rend cette opération pratiquement en temps constant.
 
-La récupération du top k complet trie une copie du tas en grand O de k log k. Avec k égal à cinq, c'est également très rapide.
+La récupération du top k complet trie une copie du tas en O k(log k). Avec k égal à cinq, c'est également très rapide.
 
-En comparaison, la solution naïve stocke toutes les variations et les trie à chaque consultation, ce qui donne une complexité de grand O de n log n par consultation où n est le nombre total de variations accumulées. Quand n devient grand, la solution naïve devient prohibitive.
+En comparaison, la solution naïve stocke toutes les variations et les trie à chaque consultation, avec une complexité de O n(log n) par consultation où n est le nombre total de variations accumulées. Quand n devient grand, la solution naïve devient prohibitive.
 
 ### Tests et validation
 
@@ -198,7 +198,7 @@ L'algorithme a été validé par six tests unitaires couvrant le remplissage ini
 
 ### Résultats expérimentaux
 
-Sur un flux de cent mille variations avec cent consultations du top cinq, les mesures de performance ont donné les résultats suivants. La solution naïve avec tri complet à chaque consultation a pris quatre virgule six cinq sept neuf six sept secondes au total. La solution avec tas binaire a pris zéro virgule zéro six huit huit cinq six secondes au total. Le gain de performance est donc de soixante-sept fois plus rapide en faveur du tas binaire.
+Sur un flux de 100.000 variations avec 100 consultations du top cinq, les mesures de performance ont donné les résultats suivants. La solution naïve avec tri complet à chaque consultation a pris 4,567967 secondes au total. La solution avec tas binaire a pris 0,068856 secondes au total. Le gain de performance est donc de 67 fois plus rapide en faveur du tas binaire.
 
 ---
 
@@ -214,7 +214,7 @@ Les entrées de l'algorithme sont le graphe routier sous forme de liste d'adjace
 
 L'algorithme de Dijkstra repose sur le principe d'optimalité de Bellman qui stipule que tout sous-chemin d'un chemin optimal est lui-même optimal. À chaque étape, l'algorithme sélectionne le sommet non visité ayant la plus petite distance estimée depuis le sommet de départ et marque cette distance comme définitive. Cette garantie d'optimalité repose sur le fait que tous les poids des arêtes sont strictement positifs, ce qui rend impossible qu'un détour par un sommet ayant une distance estimée plus grande puisse aboutir à un meilleur résultat.
 
-L'efficacité de l'algorithme dépend de la structure de données utilisée pour stocker les sommets non visités et trouver rapidement celui de distance minimale. Notre implémentation utilise un tas binaire minimum comme file de priorité, ce qui réduit la complexité de recherche du minimum de grand O de V à grand O du logarithme de V.
+L'efficacité de l'algorithme dépend de la structure de données utilisée pour stocker les sommets non visités et trouver rapidement celui de distance minimale. Notre implémentation utilise un tas binaire minimum comme file de priorité, ce qui réduit la complexité de recherche du minimum de O(V) à O(log V).
 
 ### Pseudo-code
 fonction calculer_chemin_optimal(graphe, depart, arrivee):
@@ -251,7 +251,7 @@ L'algorithme utilise plusieurs structures complémentaires. Le graphe est repré
 
 ### Analyse de complexité
 
-Chaque sommet est extrait du tas au maximum une fois, ce qui donne grand O de V extractions, chacune coûtant grand O du logarithme de V. Pour chaque sommet extrait, on examine tous ses voisins, ce qui donne au total grand O de E opérations de relaxation sur l'ensemble de l'exécution. Chaque relaxation peut insérer un nouvel élément dans le tas en grand O du logarithme de V. La complexité totale est donc de grand O de la somme de V et E, multipliée par le logarithme de V.
+Chaque sommet est extrait du tas au maximum une fois, ce qui donne O(V) extractions, chacune coûtant O(log V). Pour chaque sommet extrait, on examine tous ses voisins, ce qui donne au total O(E) opérations de relaxation sur l'ensemble de l'exécution. Chaque relaxation peut insérer un nouvel élément dans le tas en grand O du logarithme de V. La complexité totale est donc de grand O de la somme de V et E, multipliée par le logarithme de V.
 
 En comparaison, la solution naïve qui utilise une liste linéaire pour trouver le minimum à chaque étape a une complexité de grand O de V au carré. Pour les graphes denses, les deux complexités sont proches, mais pour les graphes peu denses comme les réseaux routiers réels où E est proche de V, le tas binaire offre un gain significatif.
 

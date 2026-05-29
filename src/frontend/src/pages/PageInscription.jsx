@@ -1,10 +1,3 @@
-// Page d'inscription des citoyens de Tsenan'tsika.
-// Cette page permet aux citoyens malgaches de créer leur propre compte
-// pour accéder en consultation au système de surveillance des prix.
-// Les autres rôles comme agent, analyste et administrateur sont créés
-// uniquement par l'administrateur du système, conformément au cahier
-// des charges et aux bonnes pratiques de gestion des accès.
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -18,9 +11,6 @@ import '../styles/Auth.css';
 function PageInscription() {
   const navigate = useNavigate();
   
-  // États du formulaire qui stockent toutes les informations saisies
-  // par le futur utilisateur citoyen. Nous séparons chaque champ dans
-  // son propre état pour permettre des validations indépendantes.
   const [nom, setNom] = useState('');
   const [prenoms, setPrenoms] = useState('');
   const [email, setEmail] = useState('');
@@ -29,9 +19,6 @@ function PageInscription() {
   const [erreur, setErreur] = useState(null);
   const [chargement, setChargement] = useState(false);
 
-  // Validation côté client qui vérifie la cohérence des données avant
-  // d'envoyer la requête au backend. Cette validation immédiate offre
-  // un meilleur retour à l'utilisateur que d'attendre la réponse du serveur.
   const validerFormulaire = () => {
     if (nom.length < 2) {
       setErreur('Le nom doit comporter au moins 2 caractères.');
@@ -52,8 +39,6 @@ function PageInscription() {
     return true;
   };
 
-  // Gestionnaire de soumission qui valide les données puis appelle
-  // le service d'authentification pour créer le nouveau compte citoyen.
   const gererInscription = async (evenement) => {
     evenement.preventDefault();
     setErreur(null);
@@ -67,9 +52,6 @@ function PageInscription() {
     try {
       const resultat = await serviceAuth.sInscrire(nom, prenoms, email, motDePasse);
       
-      // Après une inscription réussie, l'utilisateur est automatiquement
-      // connecté grâce au token retourné par le backend. On le redirige
-      // vers le tableau de bord qui est la page principale des citoyens.
       navigate('/tableau-bord');
     } catch (err) {
       if (err.response && err.response.status === 400) {
@@ -83,8 +65,6 @@ function PageInscription() {
     }
   };
 
-  // Variants d'animation pour orchestrer l'apparition séquentielle
-  // des différents éléments de la page de manière harmonieuse.
   const conteneurVariants = {
     cache: { opacity: 0 },
     visible: {

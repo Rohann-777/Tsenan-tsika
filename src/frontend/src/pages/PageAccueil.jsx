@@ -1,103 +1,228 @@
-// Page d'accueil de Tsenan'tsika qui présente le système et adapte
-// dynamiquement les fonctionnalités affichées selon le rôle de
-// l'utilisateur connecté. Cette adaptation contextuelle garantit
-// que chaque utilisateur voit uniquement les fonctionnalités auxquelles
-// il a droit, ce qui assure la cohérence avec la barre de navigation
-// et le système de protection des routes.
-
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { serviceAuth } from '../services/api';
+import {
+  LayoutDashboard, PlusCircle, Route, Users, ShieldAlert,
+  ArrowRight, Sparkles, MapPin, Package, AlertCircle,
+  TrendingUp
+} from 'lucide-react';
+import { serviceAuth, serviceTableauBord, servicePrix } from '../services/api';
+import '../styles/PageAccueil.css';
 
 function PageAccueil() {
-  // Récupération de l'utilisateur connecté pour adapter l'affichage
-  // des fonctionnalités selon son rôle. Cette récupération se fait
-  // localement à partir du stockage du navigateur sans appel API.
   const utilisateur = serviceAuth.obtenirUtilisateurConnecte();
-  
-  // Détermination des fonctionnalités à afficher selon le rôle.
-  // Cette logique centralisée garantit que les permissions sont
-  // appliquées de manière cohérente avec le reste de l'application.
-  const peutVoirTableauBord = utilisateur !== null; 
-  
+  const [statistiques, setStatistiques] = useState({
+    alertes: 0,
+    villes: 0,
+    produits: 0
+  });
+
+  useEffect(() => {
+    const chargerStatistiques = async () => {
+      try {
+        const [tableauBord, villes, produits] = await Promise.all([
+          serviceTableauBord.obtenirTableauBord(),
+          servicePrix.listerVilles(),
+          servicePrix.listerProduits()
+        ]);
+        
+        setStatistiques({
+          alertes: tableauBord.nombre_alertes_actives,
+          villes: villes.length,
+          produits: produits.length
+        });
+      } catch (err) {
+        console.error('Erreur lors du chargement des statistiques:', err);
+      }
+    };
+
+    chargerStatistiques();
+  }, []);
+
   const peutVoirSaisie = utilisateur && utilisateur.role === 'agent';
-  
   const peutVoirItineraire = utilisateur && 
-    (utilisateur.role === 'analyste' || utilisateur.role === 'administrateur');
+    (utilisateur.role === 'analyste');
+  const estAdministrateur = utilisateur && utilisateur.role === 'administrateur';
+
+  const obtenirSalutation = () => {
+    const heure = new Date().getHours();
+    if (heure < 12) return 'Bonjour';
+    if (heure < 18) return 'Bon après-midi';
+    return 'Bonsoir';
+  };
 
   return (
-    <div>
-      <div className="carte">
-        <h2>Bienvenue sur Tsenan'tsika</h2>
-        <p style={{ marginBottom: '1rem' }}>
-          Tsenan'tsika est le système national de surveillance des prix
-          alimentaires à Madagascar. Notre plateforme permet de suivre en
-          temps réel l'évolution des prix des produits de première nécessité
-          dans les sept grandes villes du pays, d'identifier rapidement les
-          anomalies de prix, et d'optimiser les routes d'approvisionnement
-          entre régions productrices et zones en pénurie.
-        </p>
-        <p>
-          Le système couvre actuellement sept villes pilotes que sont
-          Antananarivo, Toamasina, Antsirabe, Mahajanga, Fianarantsoa,
-          Toliara et Antsiranana, et il suit les prix de sept produits
-          essentiels à savoir le riz, le maïs, le manioc, le haricot,
-          l'huile, le sucre et le sel.
-        </p>
-      </div>
-
-      <div className="carte">
-        <h2>Fonctionnalités disponibles pour vous</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+    <div className="page-accueil">
+      
+      {/* Bannière d'accueil personnalisée qui salue l'utilisateur. */}
+      <section className="banniere-accueil">
+        <div className="contenu-banniere">
+          <div className="salutation-utilisateur">
+            <Sparkles size={16} />
+            <span>{obtenirSalutation()}, {utilisateur?.prenoms}</span>
+          </div>
           
-          {/* Affichage conditionnel du tableau de bord selon le rôle. */}
-          {peutVoirTableauBord && (
-            <div style={{ padding: '1rem', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
-              <h3 style={{ color: '#2e7d32', marginBottom: '0.5rem' }}>
-                Tableau de bord
-              </h3>
-              <p style={{ marginBottom: '1rem' }}>
-                Consultez en temps réel les alertes de prix anormaux et le
-                classement des produits avec les plus fortes hausses.
-              </p>
-              <Link to="/tableau-bord" className="bouton" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                Accéder au tableau de bord
-              </Link>
-            </div>
-          )}
+          <h1 className="titre-banniere">
+            Bienvenue sur <span className="accent-banniere">Tsenan'tsika</span>
+          </h1>
+          
+          <p className="description-banniere">
+            Le système national de surveillance des prix alimentaires de Madagascar 
+            vous accompagne pour suivre, analyser et protéger le pouvoir d'achat 
+            des citoyens à travers les sept villes pilotes du pays.
+          </p>
+          
+          <div className="badge-role">
+            <span>Connecté en tant que {utilisateur?.role}</span>
+          </div>
+        </div>
+      </section>
 
-          {/* Affichage conditionnel de la saisie de prix selon le rôle. */}
+      {/* Grille des statistiques rapides du système. */}
+      <section className="statistiques-rapides">
+        <div className="carte-statistique">
+          <div className="icone-statistique alerte">
+            <AlertCircle size={28} />
+          </div>
+          <div className="contenu-statistique">
+            <div className="valeur-statistique-accueil">{statistiques.alertes}</div>
+            <div className="label-statistique-accueil">Alertes actives</div>
+          </div>
+        </div>
+        
+        <div className="carte-statistique">
+          <div className="icone-statistique primaire">
+            <MapPin size={28} />
+          </div>
+          <div className="contenu-statistique">
+            <div className="valeur-statistique-accueil">{statistiques.villes}</div>
+            <div className="label-statistique-accueil">Villes pilotes</div>
+          </div>
+        </div>
+        
+        <div className="carte-statistique">
+          <div className="icone-statistique secondaire">
+            <Package size={28} />
+          </div>
+          <div className="contenu-statistique">
+            <div className="valeur-statistique-accueil">{statistiques.produits}</div>
+            <div className="label-statistique-accueil">Produits suivis</div>
+          </div>
+        </div>
+        
+        <div className="carte-statistique">
+          <div className="icone-statistique tertiaire">
+            <TrendingUp size={28} />
+          </div>
+          <div className="contenu-statistique">
+            <div className="valeur-statistique-accueil">24h</div>
+            <div className="label-statistique-accueil">Détection temps réel</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section des fonctionnalités disponibles selon le rôle. */}
+      <section className="section-fonctionnalites">
+        <h2 className="titre-section">Vos fonctionnalités</h2>
+        <p className="description-section">
+          Accédez rapidement aux outils mis à votre disposition selon votre rôle dans le système.
+        </p>
+        
+        <div className="grille-fonctionnalites">
+          
+          {/* Tableau de bord accessible à tous les utilisateurs connectés. */}
+          <Link to="/tableau-bord" className="carte-fonctionnalite">
+            <div className="entete-carte-fonctionnalite">
+              <div className="icone-fonctionnalite couleur-primaire">
+                <LayoutDashboard size={24} />
+              </div>
+              <h3 className="titre-fonctionnalite">Tableau de bord</h3>
+            </div>
+            <p className="description-fonctionnalite">
+              Consultez en temps réel les alertes de prix anormaux et le classement 
+              des produits avec les plus fortes hausses observées sur les marchés.
+            </p>
+            <span className="lien-fonctionnalite">
+              Accéder <ArrowRight size={16} />
+            </span>
+          </Link>
+
+          {/* Saisie de prix réservée aux agents de collecte. */}
           {peutVoirSaisie && (
-            <div style={{ padding: '1rem', backgroundColor: '#fff8e1', borderRadius: '4px' }}>
-              <h3 style={{ color: '#e65100', marginBottom: '0.5rem' }}>
-                Saisie de prix
-              </h3>
-              <p style={{ marginBottom: '1rem' }}>
-                Espace réservé aux agents de collecte pour soumettre les prix
-                observés sur les marchés locaux.
+            <Link to="/saisie" className="carte-fonctionnalite">
+              <div className="entete-carte-fonctionnalite">
+                <div className="icone-fonctionnalite couleur-secondaire">
+                  <PlusCircle size={24} />
+                </div>
+                <h3 className="titre-fonctionnalite">Saisie de prix</h3>
+              </div>
+              <p className="description-fonctionnalite">
+                Soumettez les prix observés sur les marchés locaux. Le système 
+                détecte automatiquement les doublons et calcule les variations.
               </p>
-              <Link to="/saisie" className="bouton" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                Saisir un prix
-              </Link>
-            </div>
+              <span className="lien-fonctionnalite">
+                Saisir un prix <ArrowRight size={16} />
+              </span>
+            </Link>
           )}
 
-          {/* Affichage conditionnel du calcul d'itinéraire selon le rôle. */}
+          {/* Calcul d'itinéraire réservé aux analystes et administrateurs. */}
           {peutVoirItineraire && (
-            <div style={{ padding: '1rem', backgroundColor: '#e1f5fe', borderRadius: '4px' }}>
-              <h3 style={{ color: '#01579b', marginBottom: '0.5rem' }}>
-                Itinéraire optimal
-              </h3>
-              <p style={{ marginBottom: '1rem' }}>
-                Calculez la route d'approvisionnement la moins coûteuse entre
-                deux villes du réseau malgache.
+            <Link to="/itineraire" className="carte-fonctionnalite">
+              <div className="entete-carte-fonctionnalite">
+                <div className="icone-fonctionnalite couleur-tertiaire">
+                  <Route size={24} />
+                </div>
+                <h3 className="titre-fonctionnalite">Itinéraire optimal</h3>
+              </div>
+              <p className="description-fonctionnalite">
+                Calculez la route d'approvisionnement la moins coûteuse entre 
+                deux villes du réseau routier malgache via Dijkstra.
               </p>
-              <Link to="/itineraire" className="bouton" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                Calculer un itinéraire
-              </Link>
-            </div>
+              <span className="lien-fonctionnalite">
+                Calculer un itinéraire <ArrowRight size={16} />
+              </span>
+            </Link>
+          )}
+
+          {/* Gestion des utilisateurs réservée à l'administrateur. */}
+          {estAdministrateur && (
+            <Link to="/admin/utilisateurs" className="carte-fonctionnalite">
+              <div className="entete-carte-fonctionnalite">
+                <div className="icone-fonctionnalite couleur-primaire">
+                  <Users size={24} />
+                </div>
+                <h3 className="titre-fonctionnalite">Gestion des utilisateurs</h3>
+              </div>
+              <p className="description-fonctionnalite">
+                Créez, modifiez et désactivez les comptes des agents, analystes 
+                et citoyens du système.
+              </p>
+              <span className="lien-fonctionnalite">
+                Gérer les comptes <ArrowRight size={16} />
+              </span>
+            </Link>
+          )}
+
+          {/* Surveillance des doublons réservée à l'administrateur. */}
+          {estAdministrateur && (
+            <Link to="/admin/doublons" className="carte-fonctionnalite">
+              <div className="entete-carte-fonctionnalite">
+                <div className="icone-fonctionnalite couleur-secondaire">
+                  <ShieldAlert size={24} />
+                </div>
+                <h3 className="titre-fonctionnalite">Surveillance des doublons</h3>
+              </div>
+              <p className="description-fonctionnalite">
+                Consultez les rapports détectés comme doublons par Rabin-Karp 
+                pour identifier les comportements anormaux.
+              </p>
+              <span className="lien-fonctionnalite">
+                Surveiller les doublons <ArrowRight size={16} />
+              </span>
+            </Link>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -1,50 +1,29 @@
-// Page du tableau de bord de Tsenan'tsika.
-// Cette page consulte l'API backend pour récupérer les alertes actives
-// et le classement Top-k des produits avec les plus fortes hausses de prix.
-// Elle utilise les hooks useState et useEffect pour gérer le cycle de vie
-// des données et offrir une expérience utilisateur fluide avec gestion
-// des états de chargement et d'erreur.
-
 import { useState, useEffect } from 'react';
-import { serviceTableauBord } from '../services/api';
-import { serviceAuth } from '../services/api';
+import {
+  LayoutDashboard, AlertTriangle, TrendingUp, Sparkles,
+  Calendar, MapPin, Info, Activity, Download
+} from 'lucide-react';
+import { serviceAuth, serviceTableauBord, serviceExport } from '../services/api';
+import '../styles/PageTableauBord.css';
 
 function PageTableauBord() {
-  // État pour stocker les données du tableau de bord récupérées depuis l'API.
-  // Initialement null car aucune donnée n'est encore disponible.
-  const [donnees, setDonnees] = useState(null);
-  
-  // État pour indiquer si une requête est actuellement en cours.
-  // Permet d'afficher un message de chargement à l'utilisateur.
-  const [chargement, setChargement] = useState(true);
-  
-  // État pour stocker un éventuel message d'erreur en cas de problème
-  // lors de la communication avec le backend.
-  const [erreur, setErreur] = useState(null);
-
   const utilisateur = serviceAuth.obtenirUtilisateurConnecte();
+  const [donnees, setDonnees] = useState(null);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState(null);
+  const [exportEnCours, setExportEnCours] = useState(false);
+  const [erreurExport, setErreurExport] = useState(null);
 
-  // Le hook useEffect s'exécute après le premier rendu du composant.
-  // Le tableau vide en deuxième argument signifie que cet effet ne se
-  // déclenche qu'une seule fois au chargement initial de la page.
   useEffect(() => {
-    // Fonction asynchrone pour récupérer les données du tableau de bord.
-    // Elle est définie à l'intérieur du useEffect car useEffect lui même
-    // ne peut pas être asynchrone directement.
     const recupererDonnees = async () => {
       try {
-        // Appel au service qui interroge l'endpoint /api/alertes/tableau-bord
         const reponse = await serviceTableauBord.obtenirTableauBord();
         setDonnees(reponse);
         setErreur(null);
       } catch (err) {
-        // En cas d'erreur, on enregistre le message pour l'afficher
-        // à l'utilisateur de manière informative.
         setErreur('Impossible de charger le tableau de bord. Vérifiez que le serveur backend est démarré.');
         console.error('Erreur lors du chargement du tableau de bord:', err);
       } finally {
-        // Dans tous les cas, on indique que le chargement est terminé
-        // pour cacher le message de chargement.
         setChargement(false);
       }
     };
@@ -52,98 +31,173 @@ function PageTableauBord() {
     recupererDonnees();
   }, []);
 
-  // Fonction utilitaire pour formater une date au format français lisible.
-  // Cette fonction transforme une date ISO en chaîne formatée comme
-  // par exemple "16 mai 2026 à 16:32".
-  const formaterDate = (dateIso) => {
-    const date = new Date(dateIso);
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+    const gererExportPdf = async () => {
+      setExportEnCours(true);
+      setErreurExport(null);
+      try {
+        await serviceExport.telechargerRapportPdf();
+      } catch (err) {
+        setErreurExport("Impossible de générer le rapport PDF. Veuillez réessayer.");
+        console.error('Erreur lors de l\'export PDF:', err);
+      } finally {
+        setExportEnCours(false);
+      }
+    };
 
-  // Affichage du message de chargement pendant la récupération des données.
+    const formaterDate = (dateIso) => {
+      const date = new Date(dateIso);
+      return date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    const obtenirClasseRang = (rang) => {
+      if (rang === 1) return 'rang-1';
+      if (rang === 2) return 'rang-2';
+      if (rang === 3) return 'rang-3';
+      return 'rang-autre';
+    };
+
+    const obtenirMessageTopKVide = () => {
+      if (utilisateur && utilisateur.role === 'agent') {
+        return {
+          titre: "Aucune variation enregistrée",
+          description: "Effectuez quelques saisies de prix pour alimenter le classement des hausses."
+        };
+      }
+      if (utilisateur && utilisateur.role === 'administrateur') {
+        return {
+          titre: "Aucune variation significative",
+          description: "Le classement se remplira automatiquement lorsque les agents soumettront des prix présentant des écarts notables."
+        };
+      }
+      return {
+        titre: "Marché stable",
+        description: "Aucune variation significative n'a été enregistrée récemment. Cette section se mettra à jour automatiquement dès que des écarts notables seront détectés sur les marchés."
+      };
+    };
+
   if (chargement) {
     return (
-      <div className="carte">
-        <h2>Tableau de bord</h2>
-        <div className="message-info">
-          Chargement des données en cours, veuillez patienter...
+      <div className="entete-tableau-bord">
+        <div className="contenu-entete-tableau">
+          <h1 className="titre-tableau-bord">
+            <span className="icone-titre-tableau">
+              <LayoutDashboard size={24} />
+            </span>
+            Tableau de bord
+          </h1>
+          <p className="description-tableau-bord">Chargement des données en cours...</p>
         </div>
       </div>
     );
   }
 
-  // Affichage du message d'erreur en cas de problème.
   if (erreur) {
     return (
-      <div className="carte">
-        <h2>Tableau de bord</h2>
-        <div className="message-erreur">
-          {erreur}
+      <div className="entete-tableau-bord">
+        <div className="contenu-entete-tableau">
+          <h1 className="titre-tableau-bord">
+            <span className="icone-titre-tableau">
+              <LayoutDashboard size={24} />
+            </span>
+            Tableau de bord
+          </h1>
+          <p className="description-tableau-bord" style={{ color: 'var(--erreur)' }}>
+            {erreur}
+          </p>
         </div>
       </div>
     );
   }
 
-  // Affichage normal des données quand tout s'est bien passé.
+  const messageTopKVide = obtenirMessageTopKVide();
+
   return (
-    <div>
-      {/* Section d'en-tête avec le compteur d'alertes actives.
-          Ce compteur attire immédiatement l'attention sur l'état
-          général du système et son niveau d'activité actuel. */}
-      <div className="carte">
-        <h2>Tableau de bord des alertes</h2>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-          <div>
-            <p style={{ fontSize: '0.95rem', color: '#616161' }}>
-              Synthèse de l'activité du système sur les 7 derniers jours
-            </p>
+    <div className="page-tableau-bord">
+      
+      {/* En-tête principal avec titre et compteur d'alertes proéminent. */}
+      <div className="entete-tableau-bord">
+        <div className="contenu-entete-tableau">
+          <h1 className="titre-tableau-bord">
+            <span className="icone-titre-tableau">
+              <LayoutDashboard size={24} />
+            </span>
+            Tableau de bord
+          </h1>
+          <p className="description-tableau-bord">
+            Vue synthétique de l'activité du système de surveillance des prix 
+            alimentaires sur les sept derniers jours.
+          </p>
+        </div>
+        {utilisateur?.role === 'analyste' && (
+            <button
+              className="bouton-export-pdf"
+              onClick={gererExportPdf}
+              disabled={exportEnCours}
+            >
+              <Download size={18} />
+              {exportEnCours ? 'Génération...' : 'Exporter en PDF'}
+            </button>
+          )}
+
+        {erreurExport && (
+          <div className="message-erreur-export">
+            {erreurExport}
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#c62828' }}>
-              {donnees.nombre_alertes_actives}
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#616161' }}>
-              alertes actives
-            </div>
+        )}
+        
+        <div className="compteur-alertes-principal">
+          <div className="nombre-alertes-grand">
+            {donnees.nombre_alertes_actives}
+          </div>
+          <div className="label-alertes-grand">
+            Alertes actives
           </div>
         </div>
       </div>
 
-      {/* Disposition en deux colonnes pour les alertes et le Top-k.
-          Cette mise en page permet à l'utilisateur de voir simultanément
-          les deux types d'informations sans avoir à faire défiler la page. */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+      {/* Grille principale avec les alertes et le Top-k côte à côte. */}
+      <div className="grille-tableau-bord">
         
-        {/* Section des alertes récentes affichées sous forme de liste détaillée.
-            Chaque alerte indique le produit concerné, la ville touchée
-            et la date de déclenchement. */}
-        <div className="carte">
-          <h2>Alertes récentes</h2>
+        {/* Section des alertes récentes avec design moderne. */}
+        <div className="section-donnees">
+          <div className="entete-section-donnees">
+            <h2 className="titre-section-donnees">
+              <AlertTriangle size={20} color="var(--erreur)" />
+              Alertes récentes
+            </h2>
+            <span className="compteur-section">
+              {donnees.alertes_recentes.length}
+            </span>
+          </div>
+          
           {donnees.alertes_recentes.length === 0 ? (
-            <div className="message-info">
-              Aucune alerte active actuellement. Le marché est stable.
+            <div className="message-etat-vide">
+              <div className="icone-etat-vide">
+                <Activity size={32} />
+              </div>
+              <div className="titre-etat-vide">Système stable</div>
+              <div className="description-etat-vide">
+                Aucune alerte de prix anormal n'a été déclenchée récemment.
+              </div>
             </div>
           ) : (
-            <div>
+            <div className="liste-alertes">
               {donnees.alertes_recentes.map((alerte) => (
-                <div key={alerte.id} className="carte carte-alerte" style={{ marginBottom: '0.75rem', padding: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <strong style={{ color: '#c62828', fontSize: '1.1rem' }}>
-                        {alerte.produit_nom}
-                      </strong>
-                      <span style={{ marginLeft: '0.5rem', color: '#616161' }}>
-                        à {alerte.ville_nom}
-                      </span>
+                <div key={alerte.id} className="carte-alerte-moderne">
+                  <div className="entete-alerte">
+                    <div className="contenu-alerte">
+                      <span className="produit-alerte">{alerte.produit_nom}</span>
+                      <span className="ville-alerte">à {alerte.ville_nom}</span>
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: '#757575', marginTop: '0.25rem' }}>
+                  <div className="date-alerte">
+                    <Calendar size={12} />
                     Déclenchée le {formaterDate(alerte.date)}
                   </div>
                 </div>
@@ -152,44 +206,40 @@ function PageTableauBord() {
           )}
         </div>
 
-        {/* Section du classement Top-k des plus fortes hausses de prix.
-            Ce classement est maintenu en temps réel par le tas binaire
-            côté backend et reflète les variations les plus significatives
-            observées récemment. */}
-        <div className="carte">
-          <h2>Top 5 des hausses</h2>
+        {/* Section du classement Top-k avec design en podium. */}
+        <div className="section-donnees">
+          <div className="entete-section-donnees">
+            <h2 className="titre-section-donnees">
+              <TrendingUp size={20} color="var(--avertissement)" />
+              Top 5 des hausses
+            </h2>
+            <span className="compteur-section">
+              {donnees.top_5_hausses.length} / 5
+            </span>
+          </div>
+          
           {donnees.top_5_hausses.length === 0 ? (
-              <div className="message-info">
-                {utilisateur && utilisateur.role === 'agent' ? (
-                  <>
-                    Aucune variation de prix significative enregistrée pour le moment.
-                    Effectuez quelques saisies de prix pour alimenter le classement.
-                  </>
-                ) : utilisateur && utilisateur.role === 'administrateur' ? (
-                  <>
-                    Aucune variation de prix significative enregistrée pour le moment.
-                    Le classement se remplira automatiquement lorsque les agents 
-                    soumettront des prix présentant des écarts notables.
-                  </>
-                ) : (
-                  <>
-                    Aucune variation de prix significative n'a été enregistrée récemment.
-                    Cette section se mettra à jour automatiquement dès que des écarts 
-                    notables seront détectés sur les marchés observés.
-                  </>
-                )}
+            <div className="message-etat-vide">
+              <div className="icone-etat-vide">
+                <Sparkles size={32} />
               </div>
-            ) : (
-            <div>
+              <div className="titre-etat-vide">{messageTopKVide.titre}</div>
+              <div className="description-etat-vide">{messageTopKVide.description}</div>
+            </div>
+          ) : (
+            <div className="liste-top-k">
               {donnees.top_5_hausses.map((entree) => (
-                <div key={entree.produit_id} className="entree-top-k">
-                  <span className="rang">#{entree.rang}</span>
-                  <span style={{ flex: 1, marginLeft: '1rem', fontWeight: '500' }}>
-                    {entree.produit_nom}
-                  </span>
-                  <span className="variation">
-                    +{entree.variation_pourcent}%
-                  </span>
+                <div key={entree.produit_id} className="entree-top-k-moderne">
+                  <div className={`rang-top-k ${obtenirClasseRang(entree.rang)}`}>
+                    {entree.rang}
+                  </div>
+                  <div className="contenu-top-k">
+                    <div className="nom-produit-top-k">{entree.produit_nom}</div>
+                    <div className="variation-top-k">
+                      <TrendingUp size={16} />
+                      +{entree.variation_pourcent}%
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -197,26 +247,22 @@ function PageTableauBord() {
         </div>
       </div>
 
-      {/* Section d'explication pédagogique pour les visiteurs du système.
-          Cette section aide les utilisateurs à comprendre ce qu'ils voient
-          et comment le système détecte les anomalies de prix. */}
-      <div className="carte" style={{ marginTop: '1.5rem' }}>
-        <h2>Comment fonctionne le système</h2>
-        <p>
-          Tsenan'tsika analyse en continu les prix soumis par les agents de
-          collecte répartis dans les sept villes pilotes. Quand un nouveau
-          prix est saisi, le système calcule automatiquement sa variation
-          par rapport à la moyenne récente du produit dans la même ville.
-          Si cette variation dépasse 20 pour cent, une alerte est immédiatement
-          déclenchée pour signaler une anomalie potentielle pouvant indiquer
-          une pénurie, une spéculation, ou un événement perturbateur sur le marché.
-        </p>
-        <p style={{ marginTop: '0.75rem' }}>
-          Le classement Top 5 maintient en temps réel les produits ayant connu
-          les plus fortes hausses de prix, ce qui permet aux analystes du
-          ministère de prioriser leurs interventions sur les situations les
-          plus critiques.
-        </p>
+      {/* Section explicative en bas pour contextualiser le tableau de bord. */}
+      <div className="section-explicative">
+        <div className="icone-info">
+          <Info size={24} />
+        </div>
+        <div className="contenu-explicatif">
+          <div className="titre-explicatif">Comment fonctionne ce tableau de bord</div>
+          <div className="texte-explicatif">
+            Tsenan'tsika analyse en continu les prix soumis par les agents de collecte 
+            répartis dans les sept villes pilotes. Quand un nouveau prix présente une 
+            variation supérieure à 20% par rapport à la moyenne récente, une alerte 
+            est automatiquement déclenchée. Le classement Top 5 maintient en temps réel 
+            les produits ayant connu les plus fortes hausses, permettant d'identifier 
+            rapidement les situations nécessitant une intervention prioritaire.
+          </div>
+        </div>
       </div>
     </div>
   );

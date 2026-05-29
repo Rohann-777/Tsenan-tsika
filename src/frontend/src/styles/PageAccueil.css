@@ -1,0 +1,316 @@
+/* Styles spécifiques à la page d'accueil de Tsenan'tsika.
+   Tous les éléments utilisent les variables CSS du thème global,
+   ce qui garantit une adaptation automatique entre les modes clair
+   et sombre sans aucune modification supplémentaire. */
+
+/* Conteneur principal de la page d'accueil avec une marge supérieure
+   qui crée un espace respiratoire entre la barre de navigation et le contenu. */
+.page-accueil {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xl);
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Bannière d'accueil personnalisée avec dégradé subtil et message contextuel. */
+.banniere-accueil {
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-tertiaire-foncee) 100%);
+  border-radius: var(--rayon-xl);
+  padding: var(--espace-2xl);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--ombre-lg);
+}
+
+/* Motifs décoratifs en arrière-plan pour ajouter de la texture visuelle. */
+.banniere-accueil::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 0;
+}
+
+.banniere-accueil::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  right: 100px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 0;
+}
+
+.contenu-banniere {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+}
+
+.salutation-utilisateur {
+  font-size: 0.9375rem;
+  opacity: 0.9;
+  margin-bottom: var(--espace-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.titre-banniere {
+  font-family: var(--police-titre);
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: var(--espace-md);
+  color: white;
+}
+
+.titre-banniere .accent-banniere {
+  color: var(--couleur-secondaire-claire);
+  font-style: italic;
+}
+
+.description-banniere {
+  font-size: 1.0625rem;
+  opacity: 0.95;
+  line-height: 1.6;
+  margin-bottom: var(--espace-lg);
+}
+
+.badge-role {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  padding: var(--espace-xs) var(--espace-md);
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--rayon-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Section des statistiques rapides en grille responsive. */
+.statistiques-rapides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--espace-lg);
+}
+
+.carte-statistique {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+  transition: all var(--transition-standard);
+  box-shadow: var(--ombre-sm);
+}
+
+.carte-statistique:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ombre-lg);
+  border-color: var(--couleur-primaire);
+}
+
+.icone-statistique {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--rayon-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icone-statistique.primaire {
+  background-color: var(--couleur-primaire-tres-claire);
+  color: var(--couleur-primaire);
+}
+
+.icone-statistique.secondaire {
+  background-color: var(--couleur-secondaire-tres-claire);
+  color: var(--couleur-secondaire);
+}
+
+.icone-statistique.tertiaire {
+  background-color: var(--couleur-tertiaire-tres-claire);
+  color: var(--couleur-tertiaire);
+}
+
+.icone-statistique.alerte {
+  background-color: var(--erreur-fond);
+  color: var(--erreur);
+}
+
+.contenu-statistique {
+  flex: 1;
+}
+
+.valeur-statistique-accueil {
+  font-family: var(--police-titre);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  line-height: 1;
+  margin-bottom: var(--espace-xs);
+}
+
+.label-statistique-accueil {
+  font-size: 0.8125rem;
+  color: var(--texte-discret);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+/* Section des fonctionnalités disponibles avec cartes interactives. */
+.section-fonctionnalites {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+}
+
+.titre-section {
+  font-family: var(--police-titre);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-sm);
+}
+
+.description-section {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  margin-bottom: var(--espace-xl);
+}
+
+.grille-fonctionnalites {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--espace-lg);
+}
+
+.carte-fonctionnalite {
+  background-color: var(--fond-principal);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-md);
+  transition: all var(--transition-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+.carte-fonctionnalite:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ombre-lg);
+  border-color: var(--couleur-primaire);
+}
+
+.carte-fonctionnalite::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-standard);
+}
+
+.carte-fonctionnalite:hover::before {
+  opacity: 1;
+}
+
+.entete-carte-fonctionnalite {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+}
+
+.icone-fonctionnalite {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icone-fonctionnalite.couleur-primaire {
+  background-color: var(--couleur-primaire-tres-claire);
+  color: var(--couleur-primaire);
+}
+
+.icone-fonctionnalite.couleur-secondaire {
+  background-color: var(--couleur-secondaire-tres-claire);
+  color: var(--couleur-secondaire);
+}
+
+.icone-fonctionnalite.couleur-tertiaire {
+  background-color: var(--couleur-tertiaire-tres-claire);
+  color: var(--couleur-tertiaire);
+}
+
+.titre-fonctionnalite {
+  font-family: var(--police-titre);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin: 0;
+}
+
+.description-fonctionnalite {
+  color: var(--texte-secondaire);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.lien-fonctionnalite {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  color: var(--couleur-primaire);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: all var(--transition-standard);
+}
+
+.carte-fonctionnalite:hover .lien-fonctionnalite {
+  gap: var(--espace-md);
+}
+
+@media (max-width: 768px) {
+  .banniere-accueil {
+    padding: var(--espace-lg);
+  }
+  
+  .titre-banniere {
+    font-size: 1.75rem;
+  }
+  
+  .description-banniere {
+    font-size: 1rem;
+  }
+}

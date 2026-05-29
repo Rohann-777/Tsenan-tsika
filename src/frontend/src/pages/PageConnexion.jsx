@@ -1,10 +1,3 @@
-// Page de connexion de Tsenan'tsika.
-// Cette page permet aux utilisateurs existants de s'authentifier au
-// système en utilisant leur email et leur mot de passe. Elle suit
-// les principes de design moderne avec une mise en page en deux
-// colonnes et des animations soignées pour créer une expérience
-// utilisateur premium.
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -18,15 +11,11 @@ import '../styles/Auth.css';
 function PageConnexion() {
   const navigate = useNavigate();
   
-  // États du formulaire qui stockent les valeurs saisies par l'utilisateur
-  // et gèrent les différentes phases du processus de connexion.
   const [email, setEmail] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
   const [erreur, setErreur] = useState(null);
   const [chargement, setChargement] = useState(false);
 
-  // Gestionnaire de soumission qui appelle le service d'authentification
-  // et redirige l'utilisateur vers la page appropriée selon son rôle.
   const gererConnexion = async (evenement) => {
     evenement.preventDefault();
     setErreur(null);
@@ -35,20 +24,12 @@ function PageConnexion() {
     try {
       const resultat = await serviceAuth.seConnecter(email, motDePasse);
       
-      // Redirection conditionnelle selon le rôle de l'utilisateur.
-      // Chaque rôle a une page d'accueil par défaut qui correspond
-      // à ses principales fonctionnalités dans le système.
-      const role = resultat.utilisateur.role;
-      if (role === 'agent') {
-        navigate('/saisie');
-      } else if (role === 'analyste' || role === 'administrateur') {
-        navigate('/tableau-bord');
-      } else {
         navigate('/');
-      }
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setErreur('Email ou mot de passe incorrect. Veuillez réessayer.');
+      } else if (err.response && err.response.status === 403) {
+        setErreur(err.response.data.detail || 'Ce compte a été désactivé.');
       } else {
         setErreur('Impossible de se connecter. Vérifiez que le serveur est démarré.');
       }
@@ -58,8 +39,6 @@ function PageConnexion() {
     }
   };
 
-  // Variants d'animation pour orchestrer l'apparition séquentielle
-  // des différents éléments de la page selon une chorégraphie soignée.
   const conteneurVariants = {
     cache: { opacity: 0 },
     visible: {

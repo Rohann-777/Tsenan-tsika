@@ -1,7 +1,3 @@
-"""
-Routes HTTP pour la saisie de prix dans Tsenan'tsika.
-"""
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src.backend.config.database import get_db
@@ -23,16 +19,6 @@ def saisir_prix(
     db: Session = Depends(get_db),
     utilisateur: Utilisateur = Depends(verifier_role(["agent"]))
 ):
-    """
-    Soumet un nouveau prix observé. Réservé aux agents de collecte.
-    
-    L'agent_id dans la requête doit correspondre à l'utilisateur
-    connecté pour empêcher un agent de soumettre des prix au nom
-    d'un autre agent. Cette vérification supplémentaire renforce
-    la sécurité du système.
-    """
-    # Vérification de cohérence entre l'agent connecté et l'agent
-    # mentionné dans la requête pour empêcher l'usurpation d'identité
     if requete.agent_id != utilisateur.id:
         from fastapi import HTTPException, status
         raise HTTPException(

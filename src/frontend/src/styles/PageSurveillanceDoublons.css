@@ -1,0 +1,443 @@
+/* Styles spécifiques à la page de surveillance des doublons.
+   Toutes les couleurs utilisent les variables CSS du thème global pour
+   une adaptation parfaite entre les modes clair et sombre. */
+
+.page-surveillance-doublons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xl);
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* En-tête contextuel avec compteur de doublons proéminent. */
+.entete-surveillance {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espace-lg);
+  flex-wrap: wrap;
+}
+
+.contenu-entete-surveillance {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: var(--espace-lg);
+}
+
+.icone-surveillance-grande {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--erreur) 0%, #b91c1c 100%);
+  border-radius: var(--rayon-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--ombre-md);
+  flex-shrink: 0;
+}
+
+.texte-entete-surveillance {
+  flex: 1;
+}
+
+.titre-surveillance {
+  font-family: var(--police-titre);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-xs);
+}
+
+.description-surveillance {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Compteur principal de doublons très visible. */
+.compteur-doublons-principal {
+  background: linear-gradient(135deg, var(--erreur-fond) 0%, var(--erreur-fond) 100%);
+  border: 2px solid var(--erreur);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg) var(--espace-xl);
+  text-align: center;
+  min-width: 200px;
+  transition: all var(--transition-standard);
+}
+
+.compteur-doublons-principal:hover {
+  transform: scale(1.05);
+  box-shadow: var(--ombre-lg);
+}
+
+.nombre-doublons-grand {
+  font-family: var(--police-titre);
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--erreur);
+  line-height: 1;
+  margin-bottom: var(--espace-sm);
+}
+
+.label-doublons-grand {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--erreur-texte);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Section des agents avec le plus de doublons en cartes podium. */
+.section-podium-agents {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+}
+
+.titre-podium {
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.description-podium {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  margin-bottom: var(--espace-lg);
+}
+
+.grille-podium {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--espace-md);
+}
+
+.carte-agent-podium {
+  background-color: var(--fond-principal);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+  transition: all var(--transition-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+.carte-agent-podium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.carte-agent-podium.podium-1::before {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+}
+
+.carte-agent-podium.podium-2::before {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+.carte-agent-podium.podium-3::before {
+  background: linear-gradient(180deg, #c2410c 0%, #9a3412 100%);
+}
+
+.carte-agent-podium:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ombre-lg);
+}
+
+.rang-podium {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: var(--ombre-md);
+}
+
+.rang-podium.rang-1 {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.rang-podium.rang-2 {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.rang-podium.rang-3 {
+  background: linear-gradient(135deg, #c2410c 0%, #9a3412 100%);
+}
+
+.contenu-agent-podium {
+  flex: 1;
+}
+
+.nom-agent-podium {
+  font-weight: 700;
+  color: var(--texte-principal);
+  font-size: 1rem;
+  margin-bottom: var(--espace-xs);
+}
+
+.nombre-doublons-agent {
+  font-family: var(--police-titre);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--erreur);
+  display: flex;
+  align-items: baseline;
+  gap: var(--espace-xs);
+}
+
+.label-doublons-agent {
+  font-size: 0.875rem;
+  color: var(--texte-discret);
+  font-weight: 500;
+}
+
+/* Zone de filtrage et recherche pour la liste détaillée. */
+.barre-filtres-surveillance {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  box-shadow: var(--ombre-sm);
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: var(--espace-md);
+}
+
+.conteneur-recherche-doublons {
+  position: relative;
+}
+
+.icone-recherche-doublons {
+  position: absolute;
+  left: var(--espace-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--texte-discret);
+  pointer-events: none;
+}
+
+.input-recherche-doublons {
+  width: 100%;
+  padding: var(--espace-md) var(--espace-md) var(--espace-md) 2.75rem;
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  transition: all var(--transition-standard);
+  outline: none;
+}
+
+.input-recherche-doublons:focus {
+  border-color: var(--erreur);
+  box-shadow: 0 0 0 4px var(--erreur-fond);
+}
+
+.select-periode {
+  padding: var(--espace-md);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-standard);
+}
+
+.select-periode:focus {
+  border-color: var(--erreur);
+  box-shadow: 0 0 0 4px var(--erreur-fond);
+}
+
+/* Tableau des doublons détectés avec design moderne. */
+.carte-tableau-doublons {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre-sm);
+  overflow: hidden;
+}
+
+.tableau-doublons-moderne {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-doublons-moderne thead {
+  background-color: var(--fond-principal);
+  border-bottom: 2px solid var(--bordure);
+}
+
+.tableau-doublons-moderne th {
+  padding: var(--espace-md) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--texte-secondaire);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.tableau-doublons-moderne td {
+  padding: var(--espace-md) var(--espace-lg);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  border-bottom: 1px solid var(--bordure);
+  transition: background-color var(--transition-rapide);
+}
+
+.tableau-doublons-moderne tbody tr:hover td {
+  background-color: var(--fond-survol);
+}
+
+.tableau-doublons-moderne tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cellule-icone {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  color: var(--texte-secondaire);
+}
+
+.cellule-produit-doublon {
+  font-weight: 600;
+  color: var(--texte-principal);
+}
+
+.cellule-prix-doublon {
+  font-family: var(--police-titre);
+  font-weight: 700;
+  color: var(--erreur);
+}
+
+/* Message d'état vide quand aucun doublon n'est détecté. */
+.etat-vide-doublons {
+  padding: var(--espace-3xl);
+  text-align: center;
+}
+
+.icone-etat-vide-doublons {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--espace-lg);
+  background-color: var(--succes-fond);
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--succes);
+}
+
+.titre-etat-vide-doublons {
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-sm);
+}
+
+.description-etat-vide-doublons {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Section explicative discrète sur Rabin-Karp. */
+.section-info-rabin-karp {
+  background: linear-gradient(135deg, var(--info-fond) 0%, var(--info-fond) 100%);
+  border: 1px solid var(--info);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  display: flex;
+  gap: var(--espace-md);
+}
+
+.icone-info-rabin {
+  width: 48px;
+  height: 48px;
+  background-color: var(--info);
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.contenu-info-rabin {
+  flex: 1;
+}
+
+.titre-info-rabin {
+  font-weight: 700;
+  color: var(--info-texte);
+  margin-bottom: var(--espace-sm);
+  font-size: 1.0625rem;
+}
+
+.texte-info-rabin {
+  color: var(--info-texte);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .entete-surveillance {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .contenu-entete-surveillance {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .barre-filtres-surveillance {
+    grid-template-columns: 1fr;
+  }
+  
+  .titre-surveillance {
+    font-size: 1.5rem;
+  }
+  
+  .nombre-doublons-grand {
+    font-size: 2.5rem;
+  }
+}

@@ -1,12 +1,7 @@
-// Service centralisé de communication avec l'API backend de Tsenan'tsika.
-// Cette version intègre la gestion automatique du token JWT pour
-// authentifier toutes les requêtes vers les endpoints protégés.
-
 import axios from 'axios';
 
 const URL_API = 'http://localhost:8000';
 
-// Création de l'instance axios avec configuration de base.
 const apiClient = axios.create({
   baseURL: URL_API,
   headers: {
@@ -14,10 +9,6 @@ const apiClient = axios.create({
   },
 });
 
-// Intercepteur de requêtes qui ajoute automatiquement le token JWT
-// dans l'en-tête Authorization de chaque requête sortante.
-// Cette approche centralisée évite d'avoir à gérer le token dans
-// chaque appel API individuel.
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token_tsenantsika');
@@ -31,9 +22,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Intercepteur de réponses qui gère automatiquement les erreurs
-// d'authentification en redirigeant vers la page de connexion
-// si le token n'est plus valide.
 apiClient.interceptors.response.use(
   (response) => response,
   (erreur) => {
@@ -49,13 +37,9 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Service d'authentification qui gère la connexion, l'inscription
-// et la déconnexion des utilisateurs.
 export const serviceAuth = {
   
   seConnecter: async (email, motDePasse) => {
-    // L'endpoint de connexion utilise OAuth2PasswordRequestForm qui
-    // attend les données au format form-urlencoded plutôt que JSON.
     const donnees = new URLSearchParams();
     donnees.append('username', email);
     donnees.append('password', motDePasse);
@@ -196,5 +180,34 @@ export const serviceTableauBord = {
   obtenirTableauBord: async () => {
     const reponse = await apiClient.get('/api/alertes/tableau-bord');
     return reponse.data;
+  },
+};
+
+export const serviceExport = {
+  
+  telechargerRapportPdf: async () => {
+    const reponse = await apiClient.get('/api/export/rapport-pdf', {
+      responseType: 'blob',
+    });
+    
+    const url = window.URL.createObjectURL(new Blob([reponse.data]));
+    
+    const enteteDisposition = reponse.headers['content-disposition'];
+    let nomFichier = 'tsenantsika_rapport.pdf';
+    if (enteteDisposition) {
+      const correspondance = enteteDisposition.match(/filename="(.+)"/);
+      if (correspondance && correspondance[1]) {
+        nomFichier = correspondance[1];
+      }
+    }
+    
+    const lien = document.createElement('a');
+    lien.href = url;
+    lien.setAttribute('download', nomFichier);
+    document.body.appendChild(lien);
+    lien.click();
+    
+    lien.remove();
+    window.URL.revokeObjectURL(url);
   },
 };

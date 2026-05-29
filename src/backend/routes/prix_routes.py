@@ -1,7 +1,3 @@
-"""
-Routes HTTP pour les prix dans Tsenan'tsika.
-"""
-
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session

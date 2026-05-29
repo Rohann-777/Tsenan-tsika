@@ -1,10 +1,3 @@
-"""
-Routes HTTP pour les endpoints d'administration de Tsenan'tsika.
-
-Toutes ces routes sont protégées par la dépendance verifier_role qui
-n'autorise leur accès qu'aux utilisateurs ayant le rôle administrateur.
-"""
-
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -27,9 +20,6 @@ def lister_utilisateurs(
     db: Session = Depends(get_db),
     admin: Utilisateur = Depends(verifier_role(["administrateur"]))
 ):
-    """
-    Récupère la liste des utilisateurs gérables par l'administrateur.
-    """
     return controller.lister_utilisateurs(db, role)
 
 
@@ -39,9 +29,6 @@ def creer_utilisateur(
     db: Session = Depends(get_db),
     admin: Utilisateur = Depends(verifier_role(["administrateur"]))
 ):
-    """
-    Crée un nouveau compte utilisateur de type agent, analyste ou citoyen.
-    """
     return controller.creer_utilisateur(db, requete.dict())
 
 
@@ -52,9 +39,6 @@ def modifier_utilisateur(
     db: Session = Depends(get_db),
     admin: Utilisateur = Depends(verifier_role(["administrateur"]))
 ):
-    """
-    Modifie les informations d'un utilisateur existant.
-    """
     return controller.modifier_utilisateur(db, utilisateur_id, requete.dict(exclude_unset=True))
 
 
@@ -64,9 +48,6 @@ def basculer_statut_compte(
     db: Session = Depends(get_db),
     admin: Utilisateur = Depends(verifier_role(["administrateur"]))
 ):
-    """
-    Active ou désactive un compte utilisateur selon son état actuel.
-    """
     return controller.basculer_statut(db, utilisateur_id)
 
 
@@ -76,7 +57,4 @@ def lister_doublons(
     db: Session = Depends(get_db),
     admin: Utilisateur = Depends(verifier_role(["administrateur"]))
 ):
-    """
-    Récupère la liste des rapports détectés comme doublons sur la période.
-    """
     return controller.lister_doublons(db, jours)

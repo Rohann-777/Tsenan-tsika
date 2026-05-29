@@ -1,74 +1,56 @@
-// Page de saisie de prix de Tsenan'tsika.
-// Cette page permet aux agents de collecte de soumettre les prix qu'ils
-// observent sur les marchés locaux. Elle déclenche tout le pipeline de
-// traitement backend incluant la détection de doublons par Rabin-Karp
-// et la mise à jour du Top-k qui peut générer une alerte.
-
 import { useState, useEffect } from 'react';
-import { servicePrix, serviceSaisie } from '../services/api';
+import {
+  PlusCircle, Package, MapPin, DollarSign, User, Send,
+  CheckCircle2, XCircle, AlertTriangle, TrendingUp
+} from 'lucide-react';
+import { servicePrix, serviceSaisie, serviceAuth } from '../services/api';
+import '../styles/PageSaisiePrix.css';
 
 function PageSaisiePrix() {
-  // Listes des produits et villes récupérées depuis l'API pour alimenter
-  // les menus déroulants du formulaire. Elles sont chargées une seule
-  // fois au démarrage de la page pour éviter des appels répétés.
+  const utilisateur = serviceAuth.obtenirUtilisateurConnecte();
+  
   const [produits, setProduits] = useState([]);
   const [villes, setVilles] = useState([]);
   
-  // Valeurs actuellement saisies par l'utilisateur dans le formulaire.
-  // Ces états sont mis à jour à chaque modification d'un champ et
-  // serviront à construire le corps de la requête lors de la soumission.
   const [produitId, setProduitId] = useState('');
+  const [produitSelectionne, setProduitSelectionne] = useState(null);
   const [villeId, setVilleId] = useState('');
   const [prix, setPrix] = useState('');
-  const [agentId, setAgentId] = useState('4');
   
-  // Résultat retourné par le backend après traitement de la saisie.
-  // Contient les informations sur le succès ou l'échec de l'opération
-  // ainsi que les détails comme la variation de prix calculée.
   const [resultat, setResultat] = useState(null);
-  
-  // États pour la gestion du chargement initial et de la soumission.
-  // Ils permettent d'afficher des indicateurs visuels appropriés à
-  // chaque étape du cycle de vie du formulaire.
   const [chargement, setChargement] = useState(true);
   const [soumission, setSoumission] = useState(false);
   const [erreur, setErreur] = useState(null);
 
-  // Chargement initial des produits et des villes au montage du composant.
-  // Ces deux requêtes sont lancées en parallèle pour optimiser le temps
-  // de chargement de la page.
   useEffect(() => {
-    const chargerDonneesInitiales = async () => {
-      try {
-        const [produitsCharges, villesChargees] = await Promise.all([
-          servicePrix.listerProduits(),
-          servicePrix.listerVilles()
-        ]);
-        setProduits(produitsCharges);
-        setVilles(villesChargees);
-        setErreur(null);
-      } catch (err) {
-        setErreur('Impossible de charger les données du formulaire. Vérifiez que le serveur backend est démarré.');
-        console.error('Erreur lors du chargement initial:', err);
-      } finally {
-        setChargement(false);
+  const chargerDonneesInitiales = async () => {
+    try {
+      const [produitsCharges, villesChargees] = await Promise.all([
+        servicePrix.listerProduits(),
+        servicePrix.listerVilles()
+      ]);
+      setProduits(produitsCharges);
+      setVilles(villesChargees);
+      
+      if (utilisateur?.ville_assignee_id) {
+        setVilleId(utilisateur.ville_assignee_id.toString());
       }
-    };
-
+      
+      setErreur(null);
+    } catch (err) {
+      setErreur('Impossible de charger les données du formulaire.');
+      console.error('Erreur lors du chargement initial:', err);
+    } finally {
+      setChargement(false);
+    }
+  };
     chargerDonneesInitiales();
   }, []);
 
-  // Gestionnaire de soumission du formulaire qui envoie les données au
-  // backend et affiche le résultat retourné. Cette fonction est appelée
-  // quand l'utilisateur clique sur le bouton de soumission.
   const gererSoumission = async (evenement) => {
-    // Empêche le rechargement de la page qui est le comportement par
-    // défaut d'un formulaire HTML lors de la soumission.
     evenement.preventDefault();
     
-    // Validation côté client avant l'envoi pour éviter des appels API
-    // inutiles avec des données incomplètes.
-    if (!produitId || !villeId || !prix || !agentId) {
+    if (!produitId || !villeId || !prix) {
       setErreur('Veuillez remplir tous les champs du formulaire.');
       return;
     }
@@ -82,14 +64,11 @@ function PageSaisiePrix() {
         parseInt(produitId),
         parseInt(villeId),
         parseFloat(prix),
-        parseInt(agentId)
+        utilisateur.id
       );
       setResultat(reponse);
       
-      // Si la saisie a réussi, on vide les champs pour faciliter une
-      // nouvelle saisie. Si un doublon a été détecté, on garde les
-      // valeurs pour que l'utilisateur puisse les modifier facilement.
-      if (reponse.succes) {
+      if (reponse.succes && !reponse.doublon_detecte) {
         setPrix('');
       }
     } catch (err) {
@@ -100,171 +79,230 @@ function PageSaisiePrix() {
     }
   };
 
-  // Affichage du message de chargement initial.
+  const obtenirTypeCarteResultat = () => {
+    if (!resultat) return null;
+    if (resultat.doublon_detecte) return 'doublon';
+    if (resultat.alerte_declenchee) return 'alerte';
+    return 'succes';
+  };
+
   if (chargement) {
     return (
-      <div className="carte">
-        <h2>Saisie de prix</h2>
-        <div className="message-info">
-          Chargement du formulaire en cours...
+      <div className="page-saisie">
+        <div className="entete-saisie">
+          <div className="icone-saisie-grande">
+            <PlusCircle size={32} />
+          </div>
+          <div className="contenu-entete-saisie">
+            <h1 className="titre-saisie">Chargement en cours...</h1>
+          </div>
         </div>
       </div>
     );
   }
 
+  const typeCarte = obtenirTypeCarteResultat();
+
   return (
-    <div>
-      {/* Section d'introduction qui explique le rôle de cette page
-          et donne le contexte aux agents de collecte qui vont l'utiliser. */}
-      <div className="carte">
-        <h2>Saisie d'un nouveau prix</h2>
-        <p>
-          Cette interface permet aux agents de collecte de soumettre les
-          prix observés sur les marchés locaux. Chaque saisie est automatiquement
-          vérifiée pour détecter les doublons éventuels, puis le système calcule
-          la variation par rapport à la moyenne récente du produit dans la
-          ville concernée. Si la variation dépasse 20%, une alerte
-          est immédiatement déclenchée pour signaler une anomalie potentielle.
-        </p>
+    <div className="page-saisie">
+      
+      {/* En-tête contextuel avec présentation de la fonctionnalité. */}
+      <div className="entete-saisie">
+        <div className="icone-saisie-grande">
+          <PlusCircle size={32} />
+        </div>
+        <div className="contenu-entete-saisie">
+          <h1 className="titre-saisie">Saisie d'un nouveau prix</h1>
+          <p className="description-saisie">
+            Bonjour {utilisateur?.prenoms}, soumettez ici les prix observés 
+            sur les marchés. Le système vérifie automatiquement les doublons 
+            et calcule les variations pour détecter les anomalies.
+          </p>
+        </div>
       </div>
 
-      {/* Formulaire principal de saisie avec ses différents champs.
-          Chaque champ utilise l'état React pour stocker sa valeur et
-          mettre à jour le composant à chaque modification. */}
-      <div className="carte">
-        <h2>Formulaire de saisie</h2>
+      {/* Carte principale contenant le formulaire de saisie. */}
+      <div className="carte-formulaire-saisie">
+        <h2 className="titre-formulaire-saisie">Informations du prix observé</h2>
         
         {erreur && (
-          <div className="message-erreur">
-            {erreur}
+          <div className="message-erreur-auth" style={{ marginBottom: 'var(--espace-md)' }}>
+            <XCircle size={18} />
+            <span>{erreur}</span>
           </div>
         )}
         
         <form onSubmit={gererSoumission}>
           
-          <div className="champ-formulaire">
-            <label htmlFor="produit">Produit observé</label>
-            <select
-              id="produit"
-              value={produitId}
-              onChange={(e) => setProduitId(e.target.value)}
-              disabled={soumission}
-            >
-              <option value="">-- Sélectionner un produit --</option>
-              {produits.map((produit) => (
-                <option key={produit.id} value={produit.id}>
-                  {produit.nom_fr} ({produit.nom_mg}) - en {produit.unite}
-                </option>
-              ))}
-            </select>
+          <div className="grille-champs">
+            <div className="groupe-champ-moderne">
+              <label className="label-champ-moderne" htmlFor="produit">
+                Produit observé
+              </label>
+              <div className="conteneur-input-moderne">
+                <Package size={18} className="icone-input-moderne" />
+                <select
+                  id="produit"
+                  className="select-saisie"
+                  value={produitId}
+                  onChange={(e) => {
+                    const nouvelId = e.target.value;
+                    setProduitId(nouvelId);
+                    const produit = produits.find(p => p.id === parseInt(nouvelId));
+                    setProduitSelectionne(produit || null);
+                  }}
+                  disabled={soumission}
+                  required
+                >
+                  <option value="">Sélectionner un produit</option>
+                  {produits.map((produit) => (
+                    <option key={produit.id} value={produit.id}>
+                      {produit.nom_fr} ({produit.nom_mg})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="groupe-champ-moderne">
+              <label className="label-champ-moderne">
+                Votre ville d'affectation
+              </label>
+              <div className="affichage-ville-assignee">
+                <MapPin size={20} />
+                <span className="nom-ville-assignee">
+                  {utilisateur?.ville_assignee_nom || 'Aucune ville assignée'}
+                </span>
+                <span className="badge-affectation">Affecté</span>
+              </div>
+              <p className="aide-champ">
+                Conformément à votre affectation administrative, vous pouvez saisir 
+                uniquement les prix observés dans cette ville.
+              </p>
+            </div>
           </div>
 
-          <div className="champ-formulaire">
-            <label htmlFor="ville">Ville d'observation</label>
-            <select
-              id="ville"
-              value={villeId}
-              onChange={(e) => setVilleId(e.target.value)}
-              disabled={soumission}
-            >
-              <option value="">-- Sélectionner une ville --</option>
-              {villes.map((ville) => (
-                <option key={ville.id} value={ville.id}>
-                  {ville.nom} ({ville.region})
-                </option>
-              ))}
-            </select>
+          <div className="groupe-champ-moderne">
+            <label className="label-champ-moderne" htmlFor="prix">
+              {produitSelectionne 
+                ? `Prix par ${produitSelectionne.unite} en Ariary`
+                : 'Prix observé en Ariary'}
+            </label>
+            <div className="conteneur-input-moderne">
+              <DollarSign size={18} className="icone-input-moderne" />
+              <input
+                id="prix"
+                type="number"
+                className="input-saisie"
+                placeholder="Exemple : 3500"
+                value={prix}
+                onChange={(e) => setPrix(e.target.value)}
+                disabled={soumission}
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+            <p className="aide-champ">
+              {produitSelectionne
+                ? `Saisissez le prix d'un ${produitSelectionne.unite} de ${produitSelectionne.nom_fr.toLowerCase()} observé sur le marché.`
+                : 'Sélectionnez d\'abord un produit pour voir l\'unité de mesure attendue.'}
+            </p>
           </div>
 
-          <div className="champ-formulaire">
-            <label htmlFor="prix">Prix observé en Ariary</label>
-            <input
-              type="number"
-              id="prix"
-              value={prix}
-              onChange={(e) => setPrix(e.target.value)}
-              placeholder="Exemple : 3500"
-              min="0"
-              step="0.01"
-              disabled={soumission}
-            />
-          </div>
-
-          <div className="champ-formulaire">
-            <label htmlFor="agent">Identifiant de l'agent</label>
-            <input
-              type="number"
-              id="agent"
-              value={agentId}
-              onChange={(e) => setAgentId(e.target.value)}
-              placeholder="Votre identifiant agent"
-              min="1"
-              disabled={soumission}
-            />
-            <small style={{ color: '#757575', display: 'block', marginTop: '0.25rem' }}>
-              Par défaut, l'identifiant 4 correspond à l'agent Sophie utilisé pour les tests.
-            </small>
-          </div>
-
-          <button type="submit" className="bouton" disabled={soumission}>
-            {soumission ? 'Soumission en cours...' : 'Soumettre le prix'}
+          <button type="submit" className="bouton-soumettre" disabled={soumission}>
+            {soumission ? (
+              <>
+                <span className="spinner-saisie"></span>
+                Traitement en cours...
+              </>
+            ) : (
+              <>
+                <Send size={18} />
+                Soumettre le prix
+              </>
+            )}
           </button>
-          
         </form>
       </div>
 
-      {/* Affichage du résultat de la soumission avec un style différent
-          selon que l'opération a réussi, qu'un doublon a été détecté,
-          ou qu'une alerte a été déclenchée. */}
+      {/* Carte de résultat affichée dynamiquement après chaque soumission. */}
       {resultat && (
-        <div className="carte">
-          <h2>Résultat de la soumission</h2>
+        <div className={`carte-resultat carte-resultat-${typeCarte}`}>
           
-          {resultat.doublon_detecte && (
-            <div className="message-erreur">
-              <strong>Doublon détecté</strong>
-              <p style={{ marginTop: '0.5rem' }}>
-                {resultat.message}
-              </p>
+          {typeCarte === 'doublon' && (
+            <>
+              <div className="entete-resultat">
+                <XCircle size={24} />
+                Doublon détecté
+              </div>
+              <div className="message-resultat">
+                {resultat.message} L'algorithme Rabin-Karp a identifié que ce prix 
+                a déjà été soumis dans les dernières 24 heures.
+              </div>
+            </>
+          )}
+          
+          {typeCarte === 'succes' && (
+            <>
+              <div className="entete-resultat">
+                <CheckCircle2 size={24} />
+                Prix enregistré avec succès
+              </div>
+              <div className="message-resultat">
+                Le prix a été validé et ajouté à la base de données. Aucune 
+                anomalie significative n'a été détectée par rapport à la moyenne récente.
+              </div>
+            </>
+          )}
+          
+          {typeCarte === 'alerte' && (
+            <>
+              <div className="entete-resultat">
+                <AlertTriangle size={24} />
+                Prix enregistré avec alerte
+              </div>
+              <div className="message-resultat">
+                Le prix a été validé mais sa variation par rapport à la moyenne récente 
+                dépasse le seuil de 20%. Une alerte a été automatiquement déclenchée.
+              </div>
+            </>
+          )}
+          
+          {(resultat.rapport_id || resultat.prix_marche_id) && (
+            <div className="details-resultat">
+              <div className="titre-details">Détails du traitement</div>
+              <ul className="liste-details">
+                {resultat.rapport_id && (
+                  <li className="element-detail">
+                    <span>Identifiant du rapport</span>
+                    <span className="valeur-detail">#{resultat.rapport_id}</span>
+                  </li>
+                )}
+                {resultat.prix_marche_id && (
+                  <li className="element-detail">
+                    <span>Identifiant du prix marché</span>
+                    <span className="valeur-detail">#{resultat.prix_marche_id}</span>
+                  </li>
+                )}
+                {resultat.variation_pourcent !== null && resultat.variation_pourcent !== undefined && (
+                  <li className="element-detail">
+                    <span>Variation par rapport à la moyenne</span>
+                    <span className={`valeur-detail ${resultat.variation_pourcent > 0 ? 'valeur-variation-positive' : 'valeur-variation-negative'}`}>
+                      {resultat.variation_pourcent > 0 ? '+' : ''}{resultat.variation_pourcent}%
+                    </span>
+                  </li>
+                )}
+              </ul>
             </div>
           )}
           
-          {resultat.succes && !resultat.doublon_detecte && (
-            <div className="message-succes">
-              <strong>Prix enregistré avec succès</strong>
-              <p style={{ marginTop: '0.5rem' }}>
-                Le prix a été validé et ajouté à la base de données.
-              </p>
+          {resultat.alerte_declenchee && (
+            <div className="bandeau-alerte-declenchee">
+              <TrendingUp size={18} />
+              Cette anomalie est maintenant visible sur le tableau de bord.
             </div>
           )}
-          
-          {/* Affichage des détails techniques pour information.
-              Ces informations sont utiles pour démontrer le fonctionnement
-              du système lors de la soutenance. */}
-          <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f5f5f0', borderRadius: '4px' }}>
-            <p><strong>Détails du traitement :</strong></p>
-            <ul style={{ marginTop: '0.5rem', listStyle: 'none' }}>
-              {resultat.rapport_id && (
-                <li>Identifiant du rapport en base : {resultat.rapport_id}</li>
-              )}
-              {resultat.prix_marche_id && (
-                <li>Identifiant du prix marché en base : {resultat.prix_marche_id}</li>
-              )}
-              {resultat.variation_pourcent !== null && resultat.variation_pourcent !== undefined && (
-                <li>
-                  Variation par rapport à la moyenne récente :{' '}
-                  <strong style={{ color: resultat.variation_pourcent > 0 ? '#c62828' : '#2e7d32' }}>
-                    {resultat.variation_pourcent > 0 ? '+' : ''}{resultat.variation_pourcent}%
-                  </strong>
-                </li>
-              )}
-              {resultat.alerte_declenchee && (
-                <li style={{ marginTop: '0.5rem', color: '#c62828' }}>
-                  <strong>Une alerte a été automatiquement déclenchée</strong> car la variation dépasse le seuil de 20 pour cent.
-                </li>
-              )}
-            </ul>
-          </div>
         </div>
       )}
     </div>

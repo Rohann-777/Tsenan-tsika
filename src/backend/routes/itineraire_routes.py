@@ -1,7 +1,3 @@
-"""
-Routes HTTP pour les itinéraires dans Tsenan'tsika.
-"""
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src.backend.config.database import get_db
@@ -23,9 +19,6 @@ def calculer_itineraire(
     db: Session = Depends(get_db),
     utilisateur: Utilisateur = Depends(verifier_role(["analyste", "administrateur"]))
 ):
-    """
-    Calcule un itinéraire optimal. Réservé aux analystes et administrateurs.
-    """
     return controller.calculer_itineraire(
         db, requete.ville_depart_id, requete.ville_destination_id
     )

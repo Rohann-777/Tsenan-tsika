@@ -1,0 +1,587 @@
+/* Styles spécifiques à la page de gestion des utilisateurs pour l'administrateur.
+   Toutes les couleurs utilisent les variables CSS du thème global pour une
+   adaptation parfaite entre les modes clair et sombre. */
+
+.page-gestion-utilisateurs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xl);
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* En-tête contextuel avec icône, description et bouton de création. */
+.entete-gestion {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-lg);
+  flex-wrap: wrap;
+}
+
+.icone-gestion-grande {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  border-radius: var(--rayon-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--ombre-md);
+  flex-shrink: 0;
+}
+
+.contenu-entete-gestion {
+  flex: 1;
+  min-width: 250px;
+}
+
+.titre-gestion {
+  font-family: var(--police-titre);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-xs);
+}
+
+.description-gestion {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.bouton-nouveau-compte {
+  padding: var(--espace-md) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  border: none;
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  transition: all var(--transition-standard);
+  box-shadow: var(--ombre-md);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.bouton-nouveau-compte:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-lg);
+}
+
+/* Statistiques rapides par rôle. */
+.statistiques-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--espace-md);
+}
+
+.carte-stat-role {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+  transition: all var(--transition-standard);
+  box-shadow: var(--ombre-sm);
+}
+
+.carte-stat-role:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-md);
+}
+
+.icone-stat-role {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icone-stat-role.role-agent {
+  background-color: var(--avertissement-fond);
+  color: var(--avertissement-texte);
+}
+
+.icone-stat-role.role-analyste {
+  background-color: var(--info-fond);
+  color: var(--info-texte);
+}
+
+.icone-stat-role.role-citoyen {
+  background-color: var(--succes-fond);
+  color: var(--succes-texte);
+}
+
+.icone-stat-role.role-total {
+  background-color: var(--couleur-tertiaire-tres-claire);
+  color: var(--couleur-tertiaire);
+}
+
+.valeur-stat-role {
+  font-family: var(--police-titre);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  line-height: 1;
+}
+
+.label-stat-role {
+  font-size: 0.8125rem;
+  color: var(--texte-discret);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  margin-top: var(--espace-xs);
+}
+
+/* Zone de filtrage et recherche. */
+.barre-recherche-filtres {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  box-shadow: var(--ombre-sm);
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: var(--espace-md);
+}
+
+.conteneur-recherche {
+  position: relative;
+}
+
+.icone-recherche {
+  position: absolute;
+  left: var(--espace-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--texte-discret);
+  pointer-events: none;
+}
+
+.input-recherche {
+  width: 100%;
+  padding: var(--espace-md) var(--espace-md) var(--espace-md) 2.75rem;
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  transition: all var(--transition-standard);
+  outline: none;
+}
+
+.input-recherche:focus {
+  border-color: var(--couleur-primaire);
+  box-shadow: 0 0 0 4px var(--couleur-primaire-tres-claire);
+}
+
+.select-filtre {
+  padding: var(--espace-md);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-standard);
+}
+
+.select-filtre:focus {
+  border-color: var(--couleur-primaire);
+  box-shadow: 0 0 0 4px var(--couleur-primaire-tres-claire);
+}
+
+/* Tableau des utilisateurs avec design moderne. */
+.carte-tableau-utilisateurs {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre-sm);
+  overflow: hidden;
+}
+
+.tableau-utilisateurs-moderne {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-utilisateurs-moderne thead {
+  background-color: var(--fond-principal);
+  border-bottom: 2px solid var(--bordure);
+}
+
+.tableau-utilisateurs-moderne th {
+  padding: var(--espace-md) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--texte-secondaire);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.tableau-utilisateurs-moderne th:last-child {
+  text-align: right;
+}
+
+.tableau-utilisateurs-moderne td {
+  padding: var(--espace-md) var(--espace-lg);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  border-bottom: 1px solid var(--bordure);
+  transition: background-color var(--transition-rapide);
+}
+
+.tableau-utilisateurs-moderne tbody tr:hover td {
+  background-color: var(--fond-survol);
+}
+
+.tableau-utilisateurs-moderne tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.nom-utilisateur-cellule {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+}
+
+.avatar-cellule {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rayon-full);
+  background: linear-gradient(135deg, var(--couleur-tertiaire) 0%, var(--couleur-tertiaire-foncee) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.nom-complet-cellule {
+  font-weight: 600;
+  color: var(--texte-principal);
+}
+
+.email-cellule {
+  font-size: 0.8125rem;
+  color: var(--texte-discret);
+}
+
+/* Badges de rôle avec couleurs distinctives. */
+.badge-role-cellule {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--espace-xs) var(--espace-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--rayon-full);
+  text-transform: capitalize;
+}
+
+.badge-role-cellule.role-agent {
+  background-color: var(--avertissement-fond);
+  color: var(--avertissement-texte);
+}
+
+.badge-role-cellule.role-analyste {
+  background-color: var(--info-fond);
+  color: var(--info-texte);
+}
+
+.badge-role-cellule.role-citoyen {
+  background-color: var(--succes-fond);
+  color: var(--succes-texte);
+}
+
+/* Indicateur de statut du compte. */
+.statut-compte-cellule {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-xs);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.statut-compte-cellule.actif {
+  color: var(--succes);
+}
+
+.statut-compte-cellule.desactive {
+  color: var(--erreur);
+}
+
+/* Actions sur chaque ligne du tableau. */
+.actions-cellule {
+  display: flex;
+  gap: var(--espace-xs);
+  justify-content: flex-end;
+}
+
+.bouton-action {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  color: var(--texte-secondaire);
+  transition: all var(--transition-standard);
+}
+
+.bouton-action:hover {
+  border-color: var(--couleur-primaire);
+  color: var(--couleur-primaire);
+  background-color: var(--couleur-primaire-tres-claire);
+}
+
+.bouton-action.action-desactiver:hover {
+  border-color: var(--erreur);
+  color: var(--erreur);
+  background-color: var(--erreur-fond);
+}
+
+.bouton-action.action-activer:hover {
+  border-color: var(--succes);
+  color: var(--succes);
+  background-color: var(--succes-fond);
+}
+
+/* Message d'état vide pour la liste. */
+.message-liste-vide {
+  padding: var(--espace-3xl);
+  text-align: center;
+  color: var(--texte-discret);
+}
+
+.icone-liste-vide {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--espace-md);
+  background-color: var(--fond-principal);
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texte-discret);
+}
+
+/* Modal de création modification d'utilisateur. */
+.fond-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--espace-md);
+  animation: apparitionRapide 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.contenu-modal {
+  background-color: var(--fond-secondaire);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--ombre-xl);
+  animation: apparition 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.entete-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--espace-lg);
+  padding-bottom: var(--espace-md);
+  border-bottom: 1px solid var(--bordure);
+}
+
+.titre-modal {
+  font-family: var(--police-titre);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+}
+
+.bouton-fermer-modal {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--rayon-full);
+  cursor: pointer;
+  color: var(--texte-discret);
+  transition: all var(--transition-standard);
+}
+
+.bouton-fermer-modal:hover {
+  background-color: var(--fond-survol);
+  color: var(--texte-principal);
+}
+
+.grille-champs-modal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espace-md);
+}
+
+.champ-modal {
+  margin-bottom: var(--espace-md);
+}
+
+.champ-modal.champ-pleine-largeur {
+  grid-column: span 2;
+}
+
+.label-modal {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--texte-secondaire);
+  margin-bottom: var(--espace-sm);
+}
+
+.input-modal,
+.select-modal {
+  width: 100%;
+  padding: var(--espace-sm) var(--espace-md);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  outline: none;
+  transition: all var(--transition-standard);
+}
+
+.input-modal:focus,
+.select-modal:focus {
+  border-color: var(--couleur-primaire);
+  box-shadow: 0 0 0 4px var(--couleur-primaire-tres-claire);
+}
+
+.aide-modal {
+  font-size: 0.75rem;
+  color: var(--texte-discret);
+  margin-top: var(--espace-xs);
+  font-style: italic;
+}
+
+.actions-modal {
+  display: flex;
+  gap: var(--espace-md);
+  justify-content: flex-end;
+  margin-top: var(--espace-lg);
+  padding-top: var(--espace-md);
+  border-top: 1px solid var(--bordure);
+}
+
+.bouton-annuler-modal {
+  padding: var(--espace-sm) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--texte-secondaire);
+  background-color: transparent;
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  transition: all var(--transition-standard);
+}
+
+.bouton-annuler-modal:hover {
+  background-color: var(--fond-survol);
+  color: var(--texte-principal);
+}
+
+.bouton-confirmer-modal {
+  padding: var(--espace-sm) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  border: none;
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  transition: all var(--transition-standard);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.bouton-confirmer-modal:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-md);
+}
+
+.bouton-confirmer-modal:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.message-erreur-modal {
+  background-color: var(--erreur-fond);
+  color: var(--erreur-texte);
+  padding: var(--espace-md);
+  border-radius: var(--rayon-md);
+  border-left: 4px solid var(--erreur);
+  margin-bottom: var(--espace-md);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+@media (max-width: 768px) {
+  .entete-gestion {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .barre-recherche-filtres {
+    grid-template-columns: 1fr;
+  }
+  
+  .grille-champs-modal {
+    grid-template-columns: 1fr;
+  }
+  
+  .champ-modal.champ-pleine-largeur {
+    grid-column: span 1;
+  }
+}

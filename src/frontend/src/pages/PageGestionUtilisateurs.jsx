@@ -1,28 +1,20 @@
-// Page de gestion des utilisateurs pour l'administrateur de Tsenan'tsika.
-// Cette page permet de visualiser, créer, modifier et désactiver les
-// comptes des agents, analystes et citoyens du système. Les comptes
-// administrateurs sont hors du périmètre de gestion conformément à
-// notre décision architecturale.
-
 import { useState, useEffect } from 'react';
-import { 
-  Users, UserPlus, Edit2, Power, Search, Filter,
-  CheckCircle2, XCircle, AlertCircle, X, Save
+import {
+  Users, UserPlus, Search, Edit2, Power, X, Save,
+  CheckCircle2, XCircle, AlertCircle, UserCheck, UserX
 } from 'lucide-react';
 import { serviceAdmin, servicePrix } from '../services/api';
+import '../styles/PageGestionUtilisateurs.css';
 
 function PageGestionUtilisateurs() {
-  // États pour gérer les données affichées sur la page
   const [utilisateurs, setUtilisateurs] = useState([]);
   const [villes, setVilles] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
   
-  // États pour le filtrage et la recherche
   const [filtreRole, setFiltreRole] = useState('');
   const [recherche, setRecherche] = useState('');
   
-  // États pour le formulaire de création/modification
   const [modalOuvert, setModalOuvert] = useState(false);
   const [utilisateurEnModification, setUtilisateurEnModification] = useState(null);
   const [formulaire, setFormulaire] = useState({
@@ -36,7 +28,6 @@ function PageGestionUtilisateurs() {
   const [erreurFormulaire, setErreurFormulaire] = useState(null);
   const [soumissionFormulaire, setSoumissionFormulaire] = useState(false);
 
-  // Chargement initial des données au montage du composant
   useEffect(() => {
     chargerDonnees();
   }, []);
@@ -52,14 +43,20 @@ function PageGestionUtilisateurs() {
       setVilles(villesChargees);
       setErreur(null);
     } catch (err) {
-      setErreur('Impossible de charger les utilisateurs');
+      setErreur('Impossible de charger les utilisateurs. Vérifiez que le serveur backend est démarré.');
       console.error(err);
     } finally {
       setChargement(false);
     }
   };
 
-  // Filtrage des utilisateurs selon les critères de recherche
+  const statistiques = {
+    total: utilisateurs.length,
+    agent: utilisateurs.filter(u => u.role === 'agent').length,
+    analyste: utilisateurs.filter(u => u.role === 'analyste').length,
+    citoyen: utilisateurs.filter(u => u.role === 'citoyen').length
+  };
+
   const utilisateursFiltres = utilisateurs.filter(u => {
     const correspondRole = !filtreRole || u.role === filtreRole;
     const correspondRecherche = !recherche || 
@@ -69,7 +66,12 @@ function PageGestionUtilisateurs() {
     return correspondRole && correspondRecherche;
   });
 
-  // Ouverture du modal en mode création avec formulaire vide
+  const obtenirInitiales = (prenoms, nom) => {
+    const premiereLettrePrenom = prenoms.charAt(0).toUpperCase();
+    const premiereLettreNom = nom.charAt(0).toUpperCase();
+    return `${premiereLettrePrenom}${premiereLettreNom}`;
+  };
+
   const ouvrirCreation = () => {
     setUtilisateurEnModification(null);
     setFormulaire({
@@ -84,7 +86,6 @@ function PageGestionUtilisateurs() {
     setModalOuvert(true);
   };
 
-  // Ouverture du modal en mode modification avec données pré-remplies
   const ouvrirModification = (utilisateur) => {
     setUtilisateurEnModification(utilisateur);
     setFormulaire({
@@ -99,56 +100,87 @@ function PageGestionUtilisateurs() {
     setModalOuvert(true);
   };
 
-  // Soumission du formulaire pour création ou modification
   const soumettreFormulaire = async (e) => {
-    e.preventDefault();
-    setErreurFormulaire(null);
-    setSoumissionFormulaire(true);
-    
-    try {
+  e.preventDefault();
+  setErreurFormulaire(null);
+  setSoumissionFormulaire(true);
+  
+  try {
+    if (utilisateurEnModification) {
+      // En mode modification, on construit le payload en n'incluant que
+      // les champs qui ont effectivement été modifiés par l'administrateur.
+      // Cela évite d'envoyer des valeurs inutiles qui pourraient déclencher
+      // des validations strictes côté backend.
+      const donnees = {};
+      
+      if (formulaire.nom !== utilisateurEnModification.nom) {
+        donnees.nom = formulaire.nom;
+      }
+      if (formulaire.prenoms !== utilisateurEnModification.prenoms) {
+        donnees.prenoms = formulaire.prenoms;
+      }
+      if (formulaire.email !== utilisateurEnModification.email) {
+        donnees.email = formulaire.email;
+      }
+      if (formulaire.role !== utilisateurEnModification.role) {
+        donnees.role = formulaire.role;
+      }
+      if (formulaire.mot_de_passe) {
+        donnees.mot_de_passe = formulaire.mot_de_passe;
+      }
+      
+      // La ville assignée n'est envoyée que si le rôle est ou devient agent.
+      // Sinon, on ne touche pas à ce champ pour éviter les erreurs de validation.
+      if (formulaire.role === 'agent' && formulaire.ville_assignee_id) {
+        const nouvelleVilleId = parseInt(formulaire.ville_assignee_id);
+        if (nouvelleVilleId !== utilisateurEnModification.ville_assignee_id) {
+          donnees.ville_assignee_id = nouvelleVilleId;
+        }
+      }
+      
+      // Si aucun champ n'a été modifié, on ferme simplement le modal.
+      if (Object.keys(donnees).length === 0) {
+        setModalOuvert(false);
+        setSoumissionFormulaire(false);
+        return;
+      }
+      
+      await serviceAdmin.modifierUtilisateur(utilisateurEnModification.id, donnees);
+    } else {
+      // En mode création, tous les champs requis doivent être présents.
+      if (!formulaire.mot_de_passe) {
+        setErreurFormulaire('Le mot de passe est obligatoire pour un nouveau compte');
+        setSoumissionFormulaire(false);
+        return;
+      }
+      
       const donnees = {
         nom: formulaire.nom,
         prenoms: formulaire.prenoms,
         email: formulaire.email,
+        mot_de_passe: formulaire.mot_de_passe,
         role: formulaire.role,
         ville_assignee_id: formulaire.role === 'agent' 
           ? parseInt(formulaire.ville_assignee_id) || null 
           : null
       };
       
-      if (formulaire.mot_de_passe) {
-        donnees.mot_de_passe = formulaire.mot_de_passe;
-      }
-      
-      if (utilisateurEnModification) {
-        await serviceAdmin.modifierUtilisateur(
-          utilisateurEnModification.id, 
-          donnees
-        );
-      } else {
-        if (!formulaire.mot_de_passe) {
-          setErreurFormulaire('Le mot de passe est obligatoire pour un nouveau compte');
-          setSoumissionFormulaire(false);
-          return;
-        }
-        donnees.mot_de_passe = formulaire.mot_de_passe;
-        await serviceAdmin.creerUtilisateur(donnees);
-      }
-      
-      setModalOuvert(false);
-      await chargerDonnees();
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.detail) {
-        setErreurFormulaire(err.response.data.detail);
-      } else {
-        setErreurFormulaire('Une erreur est survenue lors de l\'enregistrement');
-      }
-    } finally {
-      setSoumissionFormulaire(false);
+      await serviceAdmin.creerUtilisateur(donnees);
     }
-  };
+    
+    setModalOuvert(false);
+    await chargerDonnees();
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.detail) {
+      setErreurFormulaire(err.response.data.detail);
+    } else {
+      setErreurFormulaire('Une erreur est survenue lors de l\'enregistrement');
+    }
+  } finally {
+    setSoumissionFormulaire(false);
+  }
+};
 
-  // Basculement du statut actif/désactivé d'un compte
   const basculerStatut = async (utilisateur) => {
     const action = utilisateur.statut_compte ? 'désactiver' : 'activer';
     const confirmation = window.confirm(
@@ -166,332 +198,323 @@ function PageGestionUtilisateurs() {
     }
   };
 
-  // Détermination de la couleur du badge selon le rôle
-  const obtenirCouleurRole = (role) => {
-    if (role === 'agent') return { bg: '#fef3c7', texte: '#92400e' };
-    if (role === 'analyste') return { bg: '#dbeafe', texte: '#1e40af' };
-    if (role === 'citoyen') return { bg: '#d1fae5', texte: '#065f46' };
-    return { bg: '#f3f4f6', texte: '#374151' };
-  };
-
   if (chargement) {
     return (
-      <div className="carte">
-        <h2>Gestion des utilisateurs</h2>
-        <div className="message-info">Chargement en cours...</div>
+      <div className="page-gestion-utilisateurs">
+        <div className="entete-gestion">
+          <div className="icone-gestion-grande">
+            <Users size={32} />
+          </div>
+          <div className="contenu-entete-gestion">
+            <h1 className="titre-gestion">Chargement en cours...</h1>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Carte d'en-tête avec titre et bouton de création */}
-      <div className="carte">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="page-gestion-utilisateurs">
+      
+      {/* En-tête contextuel avec icône, description et bouton de création. */}
+      <div className="entete-gestion">
+        <div className="icone-gestion-grande">
+          <Users size={32} />
+        </div>
+        <div className="contenu-entete-gestion">
+          <h1 className="titre-gestion">Gestion des utilisateurs</h1>
+          <p className="description-gestion">
+            Créez, modifiez et désactivez les comptes des agents, analystes 
+            et citoyens du système Tsenan'tsika.
+          </p>
+        </div>
+        <button className="bouton-nouveau-compte" onClick={ouvrirCreation}>
+          <UserPlus size={18} />
+          Nouveau compte
+        </button>
+      </div>
+
+      {/* Statistiques rapides par rôle. */}
+      <div className="statistiques-roles">
+        <div className="carte-stat-role">
+          <div className="icone-stat-role role-total">
+            <Users size={24} />
+          </div>
           <div>
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Users size={28} />
-              Gestion des utilisateurs
-            </h2>
-            <p style={{ color: '#6b7280', marginTop: '0.5rem' }}>
-              Créez, modifiez ou désactivez les comptes des agents, analystes et citoyens du système.
-            </p>
+            <div className="valeur-stat-role">{statistiques.total}</div>
+            <div className="label-stat-role">Total</div>
           </div>
-          <button
-            className="bouton"
-            onClick={ouvrirCreation}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <UserPlus size={18} />
-            Nouveau compte
-          </button>
+        </div>
+        <div className="carte-stat-role">
+          <div className="icone-stat-role role-agent">
+            <UserCheck size={24} />
+          </div>
+          <div>
+            <div className="valeur-stat-role">{statistiques.agent}</div>
+            <div className="label-stat-role">Agents</div>
+          </div>
+        </div>
+        <div className="carte-stat-role">
+          <div className="icone-stat-role role-analyste">
+            <UserCheck size={24} />
+          </div>
+          <div>
+            <div className="valeur-stat-role">{statistiques.analyste}</div>
+            <div className="label-stat-role">Analystes</div>
+          </div>
+        </div>
+        <div className="carte-stat-role">
+          <div className="icone-stat-role role-citoyen">
+            <UserCheck size={24} />
+          </div>
+          <div>
+            <div className="valeur-stat-role">{statistiques.citoyen}</div>
+            <div className="label-stat-role">Citoyens</div>
+          </div>
         </div>
       </div>
 
-      {/* Carte de filtrage et recherche */}
-      <div className="carte">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '1rem' }}>
-          <div className="conteneur-input" style={{ position: 'relative' }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-            <input
-              type="text"
-              placeholder="Rechercher par nom, prénom ou email..."
-              value={recherche}
-              onChange={(e) => setRecherche(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem 0.75rem 0.75rem 2.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.375rem',
-                fontSize: '0.95rem'
-              }}
-            />
-          </div>
-          <select
-            value={filtreRole}
-            onChange={(e) => setFiltreRole(e.target.value)}
-            style={{
-              padding: '0.75rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '0.375rem',
-              fontSize: '0.95rem'
-            }}
-          >
-            <option value="">Tous les rôles</option>
-            <option value="agent">Agents</option>
-            <option value="analyste">Analystes</option>
-            <option value="citoyen">Citoyens</option>
-          </select>
+      {/* Zone de recherche et de filtrage. */}
+      <div className="barre-recherche-filtres">
+        <div className="conteneur-recherche">
+          <Search size={18} className="icone-recherche" />
+          <input
+            type="text"
+            className="input-recherche"
+            placeholder="Rechercher par nom, prénom ou email..."
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+          />
         </div>
+        <select
+          className="select-filtre"
+          value={filtreRole}
+          onChange={(e) => setFiltreRole(e.target.value)}
+        >
+          <option value="">Tous les rôles</option>
+          <option value="agent">Agents</option>
+          <option value="analyste">Analystes</option>
+          <option value="citoyen">Citoyens</option>
+        </select>
       </div>
 
-      {/* Carte avec la liste des utilisateurs */}
-      <div className="carte">
-        {erreur && <div className="message-erreur">{erreur}</div>}
+      {/* Tableau des utilisateurs avec design moderne. */}
+      <div className="carte-tableau-utilisateurs">
+        {erreur && (
+          <div className="message-erreur-modal" style={{ margin: 'var(--espace-md)' }}>
+            <AlertCircle size={18} />
+            {erreur}
+          </div>
+        )}
         
         {utilisateursFiltres.length === 0 ? (
-          <div className="message-info">
-            Aucun utilisateur ne correspond aux critères de recherche.
+          <div className="message-liste-vide">
+            <div className="icone-liste-vide">
+              <Users size={32} />
+            </div>
+            <div>Aucun utilisateur ne correspond aux critères de recherche.</div>
           </div>
         ) : (
-          <table className="tableau-donnees">
+          <table className="tableau-utilisateurs-moderne">
             <thead>
               <tr>
                 <th>Utilisateur</th>
-                <th>Email</th>
                 <th>Rôle</th>
                 <th>Ville assignée</th>
                 <th>Statut</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {utilisateursFiltres.map((utilisateur) => {
-                const couleurs = obtenirCouleurRole(utilisateur.role);
-                return (
-                  <tr key={utilisateur.id}>
-                    <td>
-                      <strong>{utilisateur.prenoms} {utilisateur.nom}</strong>
-                    </td>
-                    <td>{utilisateur.email}</td>
-                    <td>
-                      <span style={{
-                        padding: '0.25rem 0.75rem',
-                        backgroundColor: couleurs.bg,
-                        color: couleurs.texte,
-                        borderRadius: '9999px',
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
-                        textTransform: 'capitalize'
-                      }}>
-                        {utilisateur.role}
+              {utilisateursFiltres.map((utilisateur) => (
+                <tr key={utilisateur.id}>
+                  <td>
+                    <div className="nom-utilisateur-cellule">
+                      <div className="avatar-cellule">
+                        {obtenirInitiales(utilisateur.prenoms, utilisateur.nom)}
+                      </div>
+                      <div>
+                        <div className="nom-complet-cellule">
+                          {utilisateur.prenoms} {utilisateur.nom}
+                        </div>
+                        <div className="email-cellule">{utilisateur.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`badge-role-cellule role-${utilisateur.role}`}>
+                      {utilisateur.role}
+                    </span>
+                  </td>
+                  <td>{utilisateur.ville_assignee_nom || '—'}</td>
+                  <td>
+                    {utilisateur.statut_compte ? (
+                      <span className="statut-compte-cellule actif">
+                        <CheckCircle2 size={16} />
+                        Actif
                       </span>
-                    </td>
-                    <td>{utilisateur.ville_assignee_nom || '—'}</td>
-                    <td>
-                      {utilisateur.statut_compte ? (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#059669' }}>
-                          <CheckCircle2 size={16} />
-                          Actif
-                        </span>
-                      ) : (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#dc2626' }}>
-                          <XCircle size={16} />
-                          Désactivé
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
+                    ) : (
+                      <span className="statut-compte-cellule desactive">
+                        <XCircle size={16} />
+                        Désactivé
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    <div className="actions-cellule">
                       <button
+                        className="bouton-action"
                         onClick={() => ouvrirModification(utilisateur)}
-                        title="Modifier"
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '0.5rem',
-                          color: '#6b7280',
-                          marginRight: '0.5rem'
-                        }}
+                        title="Modifier les informations"
                       >
-                        <Edit2 size={18} />
+                        <Edit2 size={16} />
                       </button>
                       <button
+                        className={`bouton-action ${utilisateur.statut_compte ? 'action-desactiver' : 'action-activer'}`}
                         onClick={() => basculerStatut(utilisateur)}
-                        title={utilisateur.statut_compte ? 'Désactiver' : 'Activer'}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '0.5rem',
-                          color: utilisateur.statut_compte ? '#dc2626' : '#059669'
-                        }}
+                        title={utilisateur.statut_compte ? 'Désactiver le compte' : 'Activer le compte'}
                       >
-                        <Power size={18} />
+                        <Power size={16} />
                       </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* Modal de création/modification d'utilisateur */}
+      {/* Modal de création modification d'utilisateur. */}
       {modalOuvert && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '1rem'
-          }}
-          onClick={() => setModalOuvert(false)}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '0.75rem',
-              padding: '2rem',
-              maxWidth: '500px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '700' }}>
+        <div className="fond-modal" onClick={() => setModalOuvert(false)}>
+          <div className="contenu-modal" onClick={(e) => e.stopPropagation()}>
+            
+            <div className="entete-modal">
+              <h2 className="titre-modal">
                 {utilisateurEnModification ? 'Modifier le compte' : 'Nouveau compte'}
-              </h3>
-              <button
+              </h2>
+              <button 
+                className="bouton-fermer-modal" 
                 onClick={() => setModalOuvert(false)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0.5rem',
-                  color: '#6b7280'
-                }}
+                type="button"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
             {erreurFormulaire && (
-              <div className="message-erreur" style={{ marginBottom: '1rem' }}>
-                <AlertCircle size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+              <div className="message-erreur-modal">
+                <AlertCircle size={18} />
                 {erreurFormulaire}
               </div>
             )}
 
             <form onSubmit={soumettreFormulaire}>
-              <div className="champ-formulaire">
-                <label>Nom</label>
-                <input
-                  type="text"
-                  value={formulaire.nom}
-                  onChange={(e) => setFormulaire({ ...formulaire, nom: e.target.value })}
-                  required
-                  minLength={2}
-                />
+              
+              <div className="grille-champs-modal">
+                <div className="champ-modal">
+                  <label className="label-modal">Nom</label>
+                  <input
+                    type="text"
+                    className="input-modal"
+                    value={formulaire.nom}
+                    onChange={(e) => setFormulaire({ ...formulaire, nom: e.target.value })}
+                    required
+                    minLength={2}
+                  />
+                </div>
+                <div className="champ-modal">
+                  <label className="label-modal">Prénoms</label>
+                  <input
+                    type="text"
+                    className="input-modal"
+                    value={formulaire.prenoms}
+                    onChange={(e) => setFormulaire({ ...formulaire, prenoms: e.target.value })}
+                    required
+                    minLength={2}
+                  />
+                </div>
               </div>
-              <div className="champ-formulaire">
-                <label>Prénoms</label>
-                <input
-                  type="text"
-                  value={formulaire.prenoms}
-                  onChange={(e) => setFormulaire({ ...formulaire, prenoms: e.target.value })}
-                  required
-                  minLength={2}
-                />
-              </div>
-              <div className="champ-formulaire">
-                <label>Email</label>
+
+              <div className="champ-modal">
+                <label className="label-modal">Email</label>
                 <input
                   type="email"
+                  className="input-modal"
                   value={formulaire.email}
                   onChange={(e) => setFormulaire({ ...formulaire, email: e.target.value })}
                   required
                 />
               </div>
-              <div className="champ-formulaire">
-                <label>
-                  Mot de passe 
-                  {utilisateurEnModification && (
-                    <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.85rem' }}>
-                      {' '}(laissez vide pour ne pas modifier)
-                    </span>
-                  )}
+
+              <div className="champ-modal">
+                <label className="label-modal">
+                  Mot de passe
+                  {utilisateurEnModification && ' (laisser vide pour ne pas modifier)'}
                 </label>
                 <input
                   type="password"
+                  className="input-modal"
                   value={formulaire.mot_de_passe}
                   onChange={(e) => setFormulaire({ ...formulaire, mot_de_passe: e.target.value })}
                   required={!utilisateurEnModification}
                   minLength={8}
                 />
+                {!utilisateurEnModification && (
+                  <p className="aide-modal">Minimum 8 caractères</p>
+                )}
               </div>
-              <div className="champ-formulaire">
-                <label>Rôle</label>
-                <select
-                  value={formulaire.role}
-                  onChange={(e) => setFormulaire({ ...formulaire, role: e.target.value, ville_assignee_id: '' })}
-                  required
-                >
-                  <option value="agent">Agent de collecte</option>
-                  <option value="analyste">Analyste</option>
-                  <option value="citoyen">Citoyen</option>
-                </select>
-              </div>
-              {formulaire.role === 'agent' && (
-                <div className="champ-formulaire">
-                  <label>Ville assignée</label>
+
+              <div className="grille-champs-modal">
+                <div className="champ-modal">
+                  <label className="label-modal">Rôle</label>
                   <select
-                    value={formulaire.ville_assignee_id}
-                    onChange={(e) => setFormulaire({ ...formulaire, ville_assignee_id: e.target.value })}
+                    className="select-modal"
+                    value={formulaire.role}
+                    onChange={(e) => setFormulaire({ ...formulaire, role: e.target.value, ville_assignee_id: '' })}
                     required
                   >
-                    <option value="">Sélectionner une ville</option>
-                    {villes.map(v => (
-                      <option key={v.id} value={v.id}>{v.nom}</option>
-                    ))}
+                    <option value="agent">Agent de collecte</option>
+                    <option value="analyste">Analyste</option>
+                    <option value="citoyen">Citoyen</option>
                   </select>
                 </div>
-              )}
+                {formulaire.role === 'agent' && (
+                  <div className="champ-modal">
+                    <label className="label-modal">Ville assignée</label>
+                    <select
+                      className="select-modal"
+                      value={formulaire.ville_assignee_id}
+                      onChange={(e) => setFormulaire({ ...formulaire, ville_assignee_id: e.target.value })}
+                      required
+                    >
+                      <option value="">Sélectionner une ville</option>
+                      {villes.filter(v => 
+                        ['Antananarivo', 'Toamasina', 'Antsirabe', 'Mahajanga', 'Fianarantsoa', 'Toliara', 'Antsiranana'].includes(v.nom)
+                      ).map(v => (
+                        <option key={v.id} value={v.id}>{v.nom}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+              <div className="actions-modal">
                 <button
                   type="button"
+                  className="bouton-annuler-modal"
                   onClick={() => setModalOuvert(false)}
                   disabled={soumissionFormulaire}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    backgroundColor: 'white',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.375rem',
-                    cursor: 'pointer',
-                    fontWeight: '500'
-                  }}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
+                  className="bouton-confirmer-modal"
                   disabled={soumissionFormulaire}
-                  className="bouton"
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                 >
-                  <Save size={18} />
+                  <Save size={16} />
                   {soumissionFormulaire ? 'Enregistrement...' : 'Enregistrer'}
                 </button>
               </div>

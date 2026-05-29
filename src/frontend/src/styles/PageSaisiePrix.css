@@ -1,0 +1,349 @@
+/* Styles spécifiques à la page de saisie de prix de Tsenan'tsika.
+   Toutes les couleurs utilisent les variables CSS du thème global pour
+   une adaptation parfaite entre les modes clair et sombre. */
+
+.page-saisie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xl);
+  max-width: 900px;
+  margin: 0 auto;
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* En-tête contextuel qui présente la fonctionnalité et l'agent. */
+.entete-saisie {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-lg);
+}
+
+.icone-saisie-grande {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--couleur-secondaire) 0%, var(--couleur-secondaire-foncee) 100%);
+  border-radius: var(--rayon-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--ombre-md);
+  flex-shrink: 0;
+}
+
+.contenu-entete-saisie {
+  flex: 1;
+}
+
+.titre-saisie {
+  font-family: var(--police-titre);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-xs);
+}
+
+.description-saisie {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Carte du formulaire principal avec style moderne. */
+.carte-formulaire-saisie {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+}
+
+.titre-formulaire-saisie {
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-lg);
+  padding-bottom: var(--espace-md);
+  border-bottom: 1px solid var(--bordure);
+}
+
+/* Grille pour disposer certains champs côte à côte de manière responsive. */
+.grille-champs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espace-md);
+}
+
+.groupe-champ-moderne {
+  margin-bottom: var(--espace-lg);
+}
+
+.label-champ-moderne {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--texte-secondaire);
+  margin-bottom: var(--espace-sm);
+}
+
+.conteneur-input-moderne {
+  position: relative;
+}
+
+.icone-input-moderne {
+  position: absolute;
+  left: var(--espace-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--texte-discret);
+  pointer-events: none;
+  transition: color var(--transition-rapide);
+  z-index: 1;
+}
+
+.input-saisie,
+.select-saisie {
+  width: 100%;
+  padding: var(--espace-md) var(--espace-md) var(--espace-md) 2.75rem;
+  font-family: var(--police-corps);
+  font-size: 1rem;
+  color: var(--texte-principal);
+  background-color: var(--fond-principal);
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  transition: all var(--transition-standard);
+  outline: none;
+}
+
+.input-saisie:focus,
+.select-saisie:focus {
+  background-color: var(--fond-secondaire);
+  border-color: var(--couleur-secondaire);
+  box-shadow: 0 0 0 4px var(--couleur-secondaire-tres-claire);
+}
+
+.conteneur-input-moderne:focus-within .icone-input-moderne {
+  color: var(--couleur-secondaire);
+}
+
+.input-saisie::placeholder {
+  color: var(--texte-discret);
+}
+
+.aide-champ {
+  font-size: 0.8125rem;
+  color: var(--texte-discret);
+  margin-top: var(--espace-xs);
+}
+
+/* Bouton principal de soumission avec style affirmé. */
+.bouton-soumettre {
+  width: 100%;
+  padding: var(--espace-md) var(--espace-lg);
+  font-family: var(--police-corps);
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--couleur-secondaire) 0%, var(--couleur-secondaire-foncee) 100%);
+  border: none;
+  border-radius: var(--rayon-md);
+  cursor: pointer;
+  transition: all var(--transition-standard);
+  box-shadow: var(--ombre-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espace-sm);
+  margin-top: var(--espace-md);
+}
+
+.bouton-soumettre:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-lg);
+}
+
+.bouton-soumettre:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.bouton-soumettre:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Spinner d'animation de chargement intégré au bouton. */
+.spinner-saisie {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: rotation 800ms linear infinite;
+}
+
+/* Cartes de résultat différenciées selon le type de réponse. */
+.carte-resultat {
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  border: 2px solid;
+  animation: apparition 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.carte-resultat-succes {
+  background-color: var(--succes-fond);
+  border-color: var(--succes);
+  color: var(--succes-texte);
+}
+
+.carte-resultat-doublon {
+  background-color: var(--erreur-fond);
+  border-color: var(--erreur);
+  color: var(--erreur-texte);
+}
+
+.carte-resultat-alerte {
+  background-color: var(--avertissement-fond);
+  border-color: var(--avertissement);
+  color: var(--avertissement-texte);
+}
+
+.entete-resultat {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  margin-bottom: var(--espace-md);
+}
+
+.message-resultat {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: var(--espace-md);
+}
+
+.details-resultat {
+  background-color: var(--fond-secondaire);
+  border-radius: var(--rayon-md);
+  padding: var(--espace-md);
+  margin-top: var(--espace-md);
+}
+
+.titre-details {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--texte-secondaire);
+  margin-bottom: var(--espace-sm);
+}
+
+.liste-details {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xs);
+}
+
+.element-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--espace-xs) 0;
+  font-size: 0.875rem;
+  color: var(--texte-secondaire);
+  border-bottom: 1px solid var(--bordure);
+}
+
+.element-detail:last-child {
+  border-bottom: none;
+}
+
+.valeur-detail {
+  font-weight: 600;
+  color: var(--texte-principal);
+}
+
+.valeur-variation-positive {
+  color: var(--erreur);
+}
+
+.valeur-variation-negative {
+  color: var(--succes);
+}
+
+/* Bandeau d'alerte spécial quand une alerte est déclenchée. */
+.bandeau-alerte-declenchee {
+  background-color: var(--avertissement);
+  color: white;
+  padding: var(--espace-md);
+  border-radius: var(--rayon-md);
+  margin-top: var(--espace-md);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+/* Affichage en lecture seule de la ville assignée à l'agent. */
+/* Affichage en lecture seule de la ville assignée à l'agent. */
+.affichage-ville-assignee {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+  padding: var(--espace-md) var(--espace-lg);
+  background: linear-gradient(135deg, var(--couleur-secondaire-tres-claire) 0%, var(--couleur-secondaire-tres-claire) 100%);
+  border: 2px solid var(--couleur-secondaire);
+  border-radius: var(--rayon-md);
+  color: var(--couleur-secondaire-foncee);
+}
+
+.affichage-ville-assignee svg {
+  flex-shrink: 0;
+  color: var(--couleur-secondaire-foncee);
+}
+
+.nom-ville-assignee {
+  font-family: var(--police-titre);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  flex: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.badge-affectation {
+  background-color: var(--couleur-secondaire);
+  color: white;
+  padding: var(--espace-xs) var(--espace-md);
+  border-radius: var(--rayon-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .entete-saisie {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .grille-champs {
+    grid-template-columns: 1fr;
+  }
+  
+  .titre-saisie {
+    font-size: 1.5rem;
+  }
+}

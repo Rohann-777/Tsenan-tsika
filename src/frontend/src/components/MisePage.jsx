@@ -1,47 +1,28 @@
-// Composant de mise en page partagée utilisé par toutes les pages
-// internes de l'application Tsenan'tsika. Ce composant fournit la
-// barre de navigation et le pied de page communs, et adapte
-// dynamiquement les liens de navigation selon le rôle de l'utilisateur
-// connecté.
-
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Sprout, LayoutDashboard, PlusCircle, Route,
-  LogOut, User, Users, ShieldAlert
+  LogOut, User, Users, ShieldAlert, Sun, Moon
 } from 'lucide-react';
 import { serviceAuth } from '../services/api';
+import { utiliserTheme } from '../contexts/ContexteTheme';
 import '../styles/MisePage.css';
 
 function MisePage({ children }) {
-  // Récupération de la position actuelle dans l'URL pour mettre en
-  // évidence le lien correspondant à la page courante dans le menu.
   const emplacement = useLocation();
   
-  // Récupération de la fonction de navigation pour rediriger
-  // l'utilisateur après la déconnexion.
   const naviguer = useNavigate();
   
-  // Récupération des informations de l'utilisateur connecté depuis
-  // le stockage local pour afficher son nom et adapter le menu.
   const utilisateur = serviceAuth.obtenirUtilisateurConnecte();
+  const { theme, basculerTheme } = utiliserTheme();
   
-  // Gestion de la déconnexion qui vide le stockage local et redirige
-  // vers la page de connexion. Cette opération est immédiate et ne
-  // nécessite pas de communication avec le backend puisque les tokens
-  // JWT sont sans état côté serveur.
   const gererDeconnexion = () => {
     serviceAuth.seDeconnecter();
     naviguer('/connexion');
   };
   
-  // Construction dynamique de la liste des liens de navigation selon
-  // le rôle de l'utilisateur. Cette adaptation contextuelle est ce qui
-  // donne à l'application son caractère professionnel et personnalisé.
   const construireLiens = () => {
     const liens = [];
     
-    // Le tableau de bord est accessible aux analystes, administrateurs et citoyens
-    // mais pas aux agents qui doivent se concentrer sur leur tâche de saisie de prix.
     if (utilisateur) {
       liens.push({
         chemin: '/tableau-bord',
@@ -50,8 +31,6 @@ function MisePage({ children }) {
       });
     }
     
-    // La saisie de prix est réservée aux agents de collecte qui
-    // sont les seuls habilités à soumettre des prix observés.
     if (utilisateur && utilisateur.role === 'agent') {
       liens.push({
         chemin: '/saisie',
@@ -60,10 +39,7 @@ function MisePage({ children }) {
       });
     }
     
-    // Le calcul d'itinéraire est réservé aux analystes et administrateurs
-    // qui utilisent cette fonctionnalité pour planifier les opérations
-    // d'approvisionnement vers les zones en pénurie.
-    if (utilisateur && (utilisateur.role === 'analyste' || utilisateur.role === 'administrateur')) {
+    if (utilisateur && (utilisateur.role === 'analyste')) {
       liens.push({
         chemin: '/itineraire',
         libelle: 'Itinéraire optimal',
@@ -71,8 +47,6 @@ function MisePage({ children }) {
       });
     }
     
-    // La gestion des utilisateurs est réservée à l'administrateur
-    // conformément à la fonctionnalité F5 du cahier des charges.
     if (utilisateur && utilisateur.role === 'administrateur') {
       liens.push({
         chemin: '/admin/utilisateurs',
@@ -81,8 +55,6 @@ function MisePage({ children }) {
       });
     }
 
-    // La surveillance des doublons est également réservée à l'administrateur
-    // conformément à la fonctionnalité F4 du cahier des charges.
     if (utilisateur && utilisateur.role === 'administrateur') {
       liens.push({
         chemin: '/admin/doublons',
@@ -93,9 +65,6 @@ function MisePage({ children }) {
     return liens;
   };
   
-  // Récupération des initiales de l'utilisateur pour l'affichage
-  // dans l'avatar circulaire. Cette technique est très utilisée
-  // dans les applications professionnelles modernes.
   const obtenirInitiales = () => {
     if (!utilisateur) return '?';
     const premierePrenoms = utilisateur.prenoms?.charAt(0) || '';
@@ -156,6 +125,14 @@ function MisePage({ children }) {
             <div className="avatar-utilisateur">
               {obtenirInitiales()}
             </div>
+            <button
+              type="button"
+              className="bouton-theme"
+              onClick={basculerTheme}
+              title={theme === 'clair' ? 'Passer en mode sombre' : 'Passer en mode clair'}
+            >
+              {theme === 'clair' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
             <button
               type="button"
               className="bouton-deconnexion"

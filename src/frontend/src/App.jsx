@@ -1,7 +1,3 @@
-// Composant racine de l'application Tsenan'tsika qui orchestre la
-// navigation entre les différentes pages et applique la mise en page
-// partagée aux pages internes nécessitant une authentification.
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PageGestionUtilisateurs from './pages/PageGestionUtilisateurs';
 import PageConnexion from './pages/PageConnexion';
@@ -14,11 +10,6 @@ import PageSurveillanceDoublons from './pages/PageSurveillanceDoublons';
 import MisePage from './components/MisePage';
 import { serviceAuth } from './services/api';
 import './styles/App.css';
-
-// Composant de protection des routes qui vérifie l'authentification
-// et les permissions avant d'autoriser l'accès. Si l'utilisateur n'est
-// pas connecté, il est redirigé vers la page de connexion. S'il est
-// connecté mais n'a pas le rôle requis, il est redirigé vers l'accueil.
 function RouteProtegee({ children, rolesAutorises }) {
   const estConnecte = serviceAuth.estConnecte();
   const utilisateur = serviceAuth.obtenirUtilisateurConnecte();
@@ -36,9 +27,6 @@ function RouteProtegee({ children, rolesAutorises }) {
   return <MisePage>{children}</MisePage>;
 }
 
-// Fonction utilitaire qui détermine la page principale d'un utilisateur
-// en fonction de son rôle. Cette logique centralisée garantit la
-// cohérence des redirections dans toute l'application.
 function obtenirPagePrincipale(role) {
   if (role === 'agent') {
     return '/saisie';
@@ -88,7 +76,7 @@ function App() {
         <Route
           path="/itineraire"
           element={
-            <RouteProtegee rolesAutorises={['analyste', 'administrateur']}>
+            <RouteProtegee rolesAutorises={['analyste']}>
               <PageItineraire />
             </RouteProtegee>
           }

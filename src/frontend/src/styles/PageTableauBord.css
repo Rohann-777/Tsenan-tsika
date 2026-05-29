@@ -1,0 +1,425 @@
+/* Styles spécifiques au tableau de bord de Tsenan'tsika.
+   Toutes les couleurs utilisent les variables CSS du thème global pour
+   garantir une adaptation automatique entre les modes clair et sombre. */
+
+.page-tableau-bord {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-xl);
+  animation: apparition 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* En-tête du tableau de bord avec le titre et un compteur d'alertes proéminent. */
+.entete-tableau-bord {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-xl);
+  box-shadow: var(--ombre-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espace-lg);
+  flex-wrap: wrap;
+}
+
+.contenu-entete-tableau {
+  flex: 1;
+  min-width: 250px;
+}
+
+.titre-tableau-bord {
+  font-family: var(--police-titre);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--texte-principal);
+  margin-bottom: var(--espace-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+}
+
+.icone-titre-tableau {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--ombre-md);
+}
+
+.description-tableau-bord {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* Compteur d'alertes principal très visible à droite de l'en-tête. */
+.compteur-alertes-principal {
+  background: linear-gradient(135deg, var(--erreur-fond) 0%, var(--erreur-fond) 100%);
+  border: 2px solid var(--erreur);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg) var(--espace-xl);
+  text-align: center;
+  min-width: 180px;
+  transition: all var(--transition-standard);
+}
+
+.compteur-alertes-principal:hover {
+  transform: scale(1.05);
+  box-shadow: var(--ombre-lg);
+}
+
+.nombre-alertes-grand {
+  font-family: var(--police-titre);
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--erreur);
+  line-height: 1;
+  margin-bottom: var(--espace-sm);
+}
+
+.label-alertes-grand {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--erreur-texte);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Grille principale en deux colonnes pour les alertes et le Top-k. */
+.grille-tableau-bord {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espace-lg);
+}
+
+.section-donnees {
+  background-color: var(--fond-secondaire);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  box-shadow: var(--ombre-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.entete-section-donnees {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--espace-lg);
+  padding-bottom: var(--espace-md);
+  border-bottom: 1px solid var(--bordure);
+}
+
+.titre-section-donnees {
+  font-family: var(--police-titre);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texte-principal);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.compteur-section {
+  background-color: var(--fond-survol);
+  color: var(--texte-discret);
+  padding: var(--espace-xs) var(--espace-md);
+  border-radius: var(--rayon-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Liste des alertes individuelles avec design en cartes empilées. */
+.liste-alertes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-sm);
+  flex: 1;
+}
+
+.carte-alerte-moderne {
+  background-color: var(--fond-principal);
+  border: 1px solid var(--bordure);
+  border-left: 4px solid var(--erreur);
+  border-radius: var(--rayon-md);
+  padding: var(--espace-md);
+  transition: all var(--transition-standard);
+  cursor: default;
+}
+
+.carte-alerte-moderne:hover {
+  transform: translateX(4px);
+  border-color: var(--erreur);
+  box-shadow: var(--ombre-md);
+}
+
+.entete-alerte {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--espace-xs);
+}
+
+.contenu-alerte {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-sm);
+}
+
+.produit-alerte {
+  font-weight: 700;
+  color: var(--erreur);
+  font-size: 1rem;
+}
+
+.ville-alerte {
+  color: var(--texte-secondaire);
+  font-size: 0.9375rem;
+}
+
+.date-alerte {
+  font-size: 0.75rem;
+  color: var(--texte-discret);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-xs);
+  margin-top: var(--espace-xs);
+}
+
+/* Liste du classement Top-k avec design moderne et rangs visibles. */
+.liste-top-k {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-sm);
+  flex: 1;
+}
+
+.entree-top-k-moderne {
+  background-color: var(--fond-principal);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  padding: var(--espace-md);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-md);
+  transition: all var(--transition-standard);
+}
+
+.entree-top-k-moderne:hover {
+  transform: translateX(-4px);
+  border-color: var(--avertissement);
+  box-shadow: var(--ombre-md);
+}
+
+.rang-top-k {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 1.125rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.rang-top-k.rang-1 {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.rang-top-k.rang-2 {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.rang-top-k.rang-3 {
+  background: linear-gradient(135deg, #c2410c 0%, #9a3412 100%);
+}
+
+.rang-top-k.rang-autre {
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+}
+
+.contenu-top-k {
+  flex: 1;
+}
+
+.nom-produit-top-k {
+  font-weight: 600;
+  color: var(--texte-principal);
+  font-size: 0.9375rem;
+  margin-bottom: var(--espace-xs);
+}
+
+.variation-top-k {
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--erreur);
+  display: flex;
+  align-items: center;
+  gap: var(--espace-xs);
+}
+
+/* Message d'état vide cohérent et bien intégré. */
+.message-etat-vide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espace-2xl) var(--espace-lg);
+  text-align: center;
+  color: var(--texte-discret);
+}
+
+.icone-etat-vide {
+  width: 64px;
+  height: 64px;
+  background-color: var(--fond-survol);
+  border-radius: var(--rayon-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--espace-md);
+  color: var(--texte-discret);
+}
+
+.titre-etat-vide {
+  font-weight: 600;
+  color: var(--texte-secondaire);
+  margin-bottom: var(--espace-xs);
+}
+
+.description-etat-vide {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-width: 300px;
+}
+
+/* Section explicative en bas du tableau de bord. */
+.section-explicative {
+  background: linear-gradient(135deg, var(--info-fond) 0%, var(--info-fond) 100%);
+  border: 1px solid var(--info);
+  border-radius: var(--rayon-lg);
+  padding: var(--espace-lg);
+  display: flex;
+  gap: var(--espace-md);
+}
+
+.icone-info {
+  width: 48px;
+  height: 48px;
+  background-color: var(--info);
+  border-radius: var(--rayon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.contenu-explicatif {
+  flex: 1;
+}
+
+.titre-explicatif {
+  font-weight: 700;
+  color: var(--info-texte);
+  margin-bottom: var(--espace-sm);
+  font-size: 1.0625rem;
+}
+
+.texte-explicatif {
+  color: var(--info-texte);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* Adaptation responsive pour les écrans plus petits. */
+@media (max-width: 1024px) {
+  .grille-tableau-bord {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .entete-tableau-bord {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .titre-tableau-bord {
+    font-size: 1.5rem;
+  }
+  
+  .nombre-alertes-grand {
+    font-size: 2.5rem;
+  }
+}
+.entete-tableau-bord {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--espace-lg);
+  margin-bottom: var(--espace-xl);
+  flex-wrap: wrap;
+}
+
+.titre-section-tableau {
+  flex: 1;
+  min-width: 250px;
+}
+
+.sous-titre-tableau {
+  color: var(--texte-discret);
+  font-size: 0.9375rem;
+  margin-top: var(--espace-xs);
+}
+
+.bouton-export-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-sm);
+  padding: var(--espace-md) var(--espace-lg);
+  background: linear-gradient(135deg, var(--couleur-primaire) 0%, var(--couleur-primaire-foncee) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--rayon-md);
+  font-family: var(--police-corps);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-standard);
+  box-shadow: var(--ombre-sm);
+  white-space: nowrap;
+}
+
+.bouton-export-pdf:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-md);
+}
+
+.bouton-export-pdf:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.message-erreur-export {
+  background-color: var(--erreur-fond);
+  color: var(--erreur-texte);
+  border-left: 4px solid var(--erreur);
+  padding: var(--espace-md);
+  border-radius: var(--rayon-md);
+  margin-bottom: var(--espace-lg);
+  font-size: 0.9375rem;
+}

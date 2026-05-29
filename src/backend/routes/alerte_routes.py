@@ -1,7 +1,3 @@
-"""
-Routes HTTP pour les alertes dans Tsenan'tsika.
-"""
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src.backend.config.database import get_db

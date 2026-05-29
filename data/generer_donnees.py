@@ -67,21 +67,45 @@ def vider_base_de_donnees(db):
 
 def generer_villes(db):
     """
-    Crée les sept villes pilotes de Tsenan'tsika avec leurs coordonnées
-    géographiques réelles. Ces coordonnées correspondent aux centres
-    de chaque ville et permettront un affichage sur carte si on ajoute
-    cette fonctionnalité au frontend.
+    Crée les villes du réseau routier malgache pour Tsenan'tsika.
+    
+    Le réseau comprend deux catégories de villes. Les sept villes pilotes
+    sont celles où les agents de collecte saisissent les prix des marchés
+    et constituent le périmètre fonctionnel principal du système. Les
+    treize villes complémentaires sont des nœuds routiers stratégiques
+    qui enrichissent le graphe utilisé par l'algorithme de Dijkstra pour
+    le calcul d'itinéraires optimaux d'approvisionnement.
+    
+    Cette distinction architecturale entre villes pilotes et nœuds routiers
+    reflète la réalité métier où la collecte de données et la planification
+    logistique opèrent à des granularités différentes.
     """
-    print("Génération des villes...")
+    print("Génération des villes du réseau routier malgache...")
     
     villes_data = [
+        # Les sept villes pilotes pour la collecte des prix
         {"nom": "Antananarivo", "region": "Analamanga", "latitude": -18.8792, "longitude": 47.5079},
-        {"nom": "Toamasina", "region": "Atsinanana", "latitude": -18.1497, "longitude": 49.4022},
-        {"nom": "Antsirabe", "region": "Vakinankaratra", "latitude": -19.8666, "longitude": 47.0333},
+        {"nom": "Toamasina", "region": "Atsinanana", "latitude": -18.1492, "longitude": 49.4023},
+        {"nom": "Antsirabe", "region": "Vakinankaratra", "latitude": -19.8659, "longitude": 47.0333},
         {"nom": "Mahajanga", "region": "Boeny", "latitude": -15.7167, "longitude": 46.3167},
-        {"nom": "Fianarantsoa", "region": "Haute Matsiatra", "latitude": -21.4536, "longitude": 47.0858},
-        {"nom": "Toliara", "region": "Atsimo-Andrefana", "latitude": -23.3500, "longitude": 43.6667},
-        {"nom": "Antsiranana", "region": "Diana", "latitude": -12.2787, "longitude": 49.2917}
+        {"nom": "Fianarantsoa", "region": "Haute Matsiatra", "latitude": -21.4536, "longitude": 47.0854},
+        {"nom": "Toliara", "region": "Atsimo-Andrefana", "latitude": -23.3539, "longitude": 43.6710},
+        {"nom": "Antsiranana", "region": "Diana", "latitude": -12.2787, "longitude": 49.2917},
+        
+        # Les treize villes intermédiaires stratégiques du réseau routier
+        {"nom": "Moramanga", "region": "Alaotra-Mangoro", "latitude": -18.9333, "longitude": 48.2000},
+        {"nom": "Ambositra", "region": "Amoron'i Mania", "latitude": -20.5333, "longitude": 47.2500},
+        {"nom": "Ihosy", "region": "Ihorombe", "latitude": -22.4000, "longitude": 46.1167},
+        {"nom": "Tolagnaro", "region": "Anosy", "latitude": -25.0319, "longitude": 46.9994},
+        {"nom": "Ambovombe", "region": "Androy", "latitude": -25.1739, "longitude": 46.0900},
+        {"nom": "Maevatanana", "region": "Betsiboka", "latitude": -16.9500, "longitude": 46.8333},
+        {"nom": "Ambondromamy", "region": "Boeny", "latitude": -16.4167, "longitude": 47.1500},
+        {"nom": "Antsohihy", "region": "Sofia", "latitude": -14.8833, "longitude": 47.9833},
+        {"nom": "Ambanja", "region": "Diana", "latitude": -13.6833, "longitude": 48.4500},
+        {"nom": "Tsiroanomandidy", "region": "Bongolava", "latitude": -18.7667, "longitude": 46.0500},
+        {"nom": "Manakara", "region": "Vatovavy", "latitude": -22.1333, "longitude": 48.0167},
+        {"nom": "Sambava", "region": "Sava", "latitude": -14.2667, "longitude": 50.1667},
+        {"nom": "Maintirano", "region": "Melaky", "latitude": -18.0667, "longitude": 44.0333},
     ]
     
     villes = []
@@ -91,7 +115,7 @@ def generer_villes(db):
         villes.append(ville)
     
     db.commit()
-    print(f"  - {len(villes)} villes créées.")
+    print(f"  - {len(villes)} villes créées dans le réseau routier.")
     return villes
 
 
@@ -126,67 +150,112 @@ def generer_produits(db):
 
 def generer_connexions(db, villes):
     """
-    Crée les connexions routières entre les villes avec leurs coûts
-    de transport. Les coûts sont calculés à partir des distances
-    approximatives entre les villes multipliées par un indice carburant
-    fictif. Ces données alimentent l'algorithme de Dijkstra pour le
-    calcul des itinéraires d'approvisionnement.
+    Crée les connexions routières entre les villes du réseau malgache.
     
-    Le graphe est non orienté donc on crée une connexion dans chaque
-    sens pour chaque paire de villes connectées. Cela facilite
-    l'utilisation par Dijkstra qui traite les arêtes comme directionnelles.
+    Chaque connexion représente un segment de route nationale reliant
+    directement deux villes. Le coût de chaque connexion est calculé
+    en multipliant la distance approximative en kilomètres par un indice
+    carburant régional qui reflète l'état des routes et la difficulté
+    d'approvisionnement en carburant dans les différentes régions.
+    
+    Le graphe résultant comprend une quarantaine d'arêtes qui permettent
+    à l'algorithme de Dijkstra d'évaluer véritablement plusieurs alternatives
+    pour chaque trajet calculé, mettant en valeur sa puissance algorithmique.
     """
-    print("Génération des connexions routières...")
+    print("Génération des connexions routières du réseau malgache...")
     
-    # Dictionnaire pour retrouver facilement les villes par leur nom
+    # Création d'un dictionnaire pour retrouver facilement les villes par nom
     villes_par_nom = {ville.nom: ville for ville in villes}
     
-    # Liste des connexions avec leurs coûts en unité arbitraire
-    # Les coûts sont basés sur les distances routières réelles
+    # Liste des connexions routières basées sur le réseau réel de Madagascar.
+    # Le format est ville_depart, ville_arrivee, distance_km, indice_carburant.
+    # L'indice carburant varie entre 1.0 pour les routes principales en bon
+    # état et 1.5 pour les segments en mauvais état ou difficiles d'accès.
     connexions_data = [
-        ("Antananarivo", "Toamasina", 350),
-        ("Antananarivo", "Antsirabe", 170),
-        ("Antananarivo", "Mahajanga", 570),
-        ("Antananarivo", "Fianarantsoa", 410),
-        ("Antsirabe", "Fianarantsoa", 240),
-        ("Fianarantsoa", "Toliara", 410),
-        ("Mahajanga", "Antsiranana", 800)
+        # Route nationale 2 vers l'est jusqu'à Toamasina
+        ("Antananarivo", "Moramanga", 110, 1.0),
+        ("Moramanga", "Toamasina", 250, 1.1),
+        
+        # Route nationale 7 vers le sud jusqu'à Toliara
+        ("Antananarivo", "Antsirabe", 165, 1.0),
+        ("Antsirabe", "Ambositra", 90, 1.0),
+        ("Ambositra", "Fianarantsoa", 145, 1.0),
+        ("Fianarantsoa", "Ihosy", 200, 1.1),
+        ("Ihosy", "Toliara", 320, 1.2),
+        
+        # Route nationale 13 du sud-est
+        ("Ihosy", "Ambovombe", 280, 1.3),
+        ("Ambovombe", "Tolagnaro", 110, 1.3),
+        
+        # Route nationale 4 vers le nord-ouest jusqu'à Mahajanga
+        ("Antananarivo", "Maevatanana", 270, 1.0),
+        ("Maevatanana", "Ambondromamy", 180, 1.1),
+        ("Ambondromamy", "Mahajanga", 110, 1.0),
+        
+        # Route nationale 6 vers le nord jusqu'à Antsiranana
+        ("Ambondromamy", "Antsohihy", 230, 1.2),
+        ("Antsohihy", "Ambanja", 270, 1.3),
+        ("Ambanja", "Antsiranana", 240, 1.2),
+        
+        # Route nationale 1 vers l'ouest
+        ("Antananarivo", "Tsiroanomandidy", 220, 1.1),
+        ("Tsiroanomandidy", "Maintirano", 360, 1.5),
+        
+        # Route nationale 12 sur la côte est sud
+        ("Fianarantsoa", "Manakara", 240, 1.2),
+        ("Manakara", "Tolagnaro", 380, 1.4),
+        
+        # Route nationale 5a vers le nord-est depuis Antsiranana
+        ("Antsiranana", "Sambava", 320, 1.4),
+        
+        # Connexions secondaires qui enrichissent le graphe
+        ("Antsirabe", "Tsiroanomandidy", 180, 1.3),
+        ("Antananarivo", "Toamasina", 360, 1.1),
+        ("Tsiroanomandidy", "Maevatanana", 200, 1.4),
+        ("Sambava", "Antsohihy", 280, 1.5),
+        ("Moramanga", "Antsirabe", 240, 1.2),
     ]
     
-    connexions = []
-    for nom_depart, nom_destination, cout in connexions_data:
-        # On crée une connexion dans chaque sens pour avoir un graphe
-        # non orienté tout en utilisant une représentation orientée
+    connexions_creees = 0
+    for nom_depart, nom_arrivee, distance, indice in connexions_data:
+        ville_depart = villes_par_nom[nom_depart]
+        ville_arrivee = villes_par_nom[nom_arrivee]
+        
+        # Le coût est calculé selon la formule du cahier des charges
+        cout = distance * indice
+        
+        # Création de la connexion dans les deux sens car le graphe est
+        # non orienté, les routes peuvent être empruntées dans les deux
+        # directions avec le même coût
         connexion_aller = ConnexionVille(
-            ville_depart_id=villes_par_nom[nom_depart].id,
-            ville_destination_id=villes_par_nom[nom_destination].id,
+            ville_depart_id=ville_depart.id,
+            ville_destination_id=ville_arrivee.id,
             cout=cout
         )
         connexion_retour = ConnexionVille(
-            ville_depart_id=villes_par_nom[nom_destination].id,
-            ville_destination_id=villes_par_nom[nom_depart].id,
+            ville_depart_id=ville_arrivee.id,
+            ville_destination_id=ville_depart.id,
             cout=cout
         )
+        
         db.add(connexion_aller)
         db.add(connexion_retour)
-        connexions.extend([connexion_aller, connexion_retour])
+        connexions_creees += 2
     
     db.commit()
-    print(f"  - {len(connexions)} connexions créées.")
-    return connexions
+    print(f"  - {connexions_creees} connexions routières créées ({connexions_creees // 2} liaisons bidirectionnelles).")
 
 
 def generer_utilisateurs(db, villes):
     """
-    Crée des utilisateurs de test pour chaque rôle du système avec
-    leurs nouveaux attributs de statut de compte et ville assignée.
+    Crée des utilisateurs de test pour chaque rôle du système avec leurs
+    nouveaux attributs de statut de compte et ville assignée.
     
-    Les agents de collecte sont assignés à des villes spécifiques pour
-    refléter la réalité du déploiement sur le terrain. Les autres rôles
-    n'ont pas de ville assignée car ils opèrent depuis le ministère ou
-    consultent le système à distance. Tous les comptes sont actifs par
-    défaut, l'administrateur pouvant les désactiver ultérieurement si
-    nécessaire via la fonctionnalité de gestion des utilisateurs.
+    Sept agents sont créés, un pour chaque ville pilote, ce qui reflète
+    la nouvelle architecture où la ville assignée est véritablement
+    contraignante. Chaque agent ne peut saisir des prix que pour la ville
+    à laquelle il est affecté, garantissant ainsi la cohérence administrative
+    et la qualité des données collectées sur le terrain.
     """
     print("Génération des utilisateurs...")
     
@@ -220,8 +289,7 @@ def generer_utilisateurs(db, villes):
             "statut_compte": True,
             "ville_assignee_id": None
         },
-        # Agents de collecte assignés à différentes villes pilotes
-        # Sophie couvre Antananarivo qui est la capitale
+        # Sept agents de collecte, un pour chaque ville pilote
         {
             "nom": "Rasoamanarivo", "prenoms": "Sophie",
             "email": "sophie.agent@tsenantsika.mg",
@@ -230,7 +298,6 @@ def generer_utilisateurs(db, villes):
             "statut_compte": True,
             "ville_assignee_id": villes_par_nom["Antananarivo"].id
         },
-        # Pierre couvre Toamasina, le grand port de l'est
         {
             "nom": "Ratsimba", "prenoms": "Pierre",
             "email": "pierre.agent@tsenantsika.mg",
@@ -239,7 +306,6 @@ def generer_utilisateurs(db, villes):
             "statut_compte": True,
             "ville_assignee_id": villes_par_nom["Toamasina"].id
         },
-        # Claire couvre Fianarantsoa dans les hauts plateaux du sud
         {
             "nom": "Andriamanantena", "prenoms": "Claire",
             "email": "claire.agent@tsenantsika.mg",
@@ -247,6 +313,38 @@ def generer_utilisateurs(db, villes):
             "role": "agent",
             "statut_compte": True,
             "ville_assignee_id": villes_par_nom["Fianarantsoa"].id
+        },
+        {
+            "nom": "Rakotondrasoa", "prenoms": "Hery",
+            "email": "hery.agent@tsenantsika.mg",
+            "mot_de_passe": hacher_mot_de_passe("agent123"),
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Antsirabe"].id
+        },
+        {
+            "nom": "Razafy", "prenoms": "Lalaina",
+            "email": "lalaina.agent@tsenantsika.mg",
+            "mot_de_passe": hacher_mot_de_passe("agent123"),
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Mahajanga"].id
+        },
+        {
+            "nom": "Andrianjafy", "prenoms": "Tahiana",
+            "email": "tahiana.agent@tsenantsika.mg",
+            "mot_de_passe": hacher_mot_de_passe("agent123"),
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Toliara"].id
+        },
+        {
+            "nom": "Randrianasolo", "prenoms": "Voahangy",
+            "email": "voahangy.agent@tsenantsika.mg",
+            "mot_de_passe": hacher_mot_de_passe("agent123"),
+            "role": "agent",
+            "statut_compte": True,
+            "ville_assignee_id": villes_par_nom["Antsiranana"].id
         },
         # Citoyen qui consulte le système sans ville assignée
         {
@@ -272,21 +370,29 @@ def generer_utilisateurs(db, villes):
 
 def generer_historique_prix(db, villes, produits, utilisateurs):
     """
-    Génère un historique de prix réaliste sur six semaines pour
-    permettre aux algorithmes Fenwick Tree et Top-k d'avoir
-    suffisamment de données à analyser.
+    Génère un historique de prix réaliste sur six semaines pour permettre
+    aux algorithmes Fenwick Tree et Top-k d'avoir suffisamment de données
+    à analyser.
     
-    Les prix de base sont définis par produit selon les niveaux
-    de prix réels observés à Madagascar, puis ils varient légèrement
-    chaque jour pour simuler les fluctuations naturelles du marché.
-    Quelques anomalies sont intentionnellement injectées pour démontrer
-    que le système d'alertes fonctionne correctement.
+    Chaque prix est attribué à l'agent affecté à la ville correspondante,
+    respectant ainsi la nouvelle logique où la ville assignée est
+    véritablement contraignante. Cette cohérence garantit que les saisies
+    historiques reflètent fidèlement l'organisation administrative du système.
     """
     print("Génération de l'historique des prix...")
     
     # Filtrage des agents pour la saisie des prix
     agents = [u for u in utilisateurs if u.role == "agent"]
     
+    # Création d'un dictionnaire pour retrouver l'agent par ville assignée.
+    # Cette structure permet une attribution rapide et cohérente des prix
+    # à l'agent qui couvre effectivement chaque ville pilote.
+    agent_par_ville = {agent.ville_assignee_id: agent for agent in agents}
+    
+    # Filtrage pour ne conserver que les sept villes pilotes
+    villes_pilotes_noms = ['Antananarivo', 'Toamasina', 'Antsirabe', 'Mahajanga', 'Fianarantsoa', 'Toliara', 'Antsiranana']
+    villes_pilotes = [v for v in villes if v.nom in villes_pilotes_noms]
+
     # Prix de base par produit en Ariary par unité
     # Ces valeurs sont approximatives mais réalistes pour Madagascar en 2026
     prix_de_base = {
@@ -308,7 +414,13 @@ def generer_historique_prix(db, villes, produits, utilisateurs):
     for jours_avant in range(nombre_jours, 0, -1):
         date_courante = date_fin - timedelta(days=jours_avant)
         
-        for ville in villes:
+        for ville in villes_pilotes:
+            # Sélection de l'agent assigné à cette ville pour respecter
+            # la nouvelle logique d'assignation contraignante.
+            agent_de_la_ville = agent_par_ville.get(ville.id)
+            if not agent_de_la_ville:
+                continue  # Ignore les villes sans agent assigné
+            
             for produit in produits:
                 # Pas toutes les villes ont tous les produits chaque jour
                 # On simule une couverture partielle réaliste
@@ -331,7 +443,7 @@ def generer_historique_prix(db, villes, produits, utilisateurs):
                         ville_id=ville.id,
                         prix=round(prix, 2),
                         date_saisie=date_courante,
-                        agent_id=random.choice(agents).id
+                        agent_id=agent_de_la_ville.id
                     )
                     db.add(prix_marche)
                     prix_generes.append(prix_marche)
@@ -401,11 +513,18 @@ def executer_generation():
         print("=" * 60)
         print("\nIdentifiants de test pour la connexion :")
         print("  Administrateur : admin@tsenantsika.mg / admin123")
-        print("  Analyste       : marie.analyste@tsenantsika.mg / analyste123")
-        print("  Agent Antananarivo : sophie.agent@tsenantsika.mg / agent123")
-        print("  Agent Toamasina    : pierre.agent@tsenantsika.mg / agent123")
-        print("  Agent Fianarantsoa : claire.agent@tsenantsika.mg / agent123")
-        print("  Citoyen        : tiana.citoyen@tsenantsika.mg / citoyen123")
+        print("  Analystes :")
+        print("    - marie.analyste@tsenantsika.mg / analyste123")
+        print("    - paul.analyste@tsenantsika.mg / analyste123")
+        print("  Agents de collecte :")
+        print("    - sophie.agent@tsenantsika.mg / agent123 (Antananarivo)")
+        print("    - pierre.agent@tsenantsika.mg / agent123 (Toamasina)")
+        print("    - claire.agent@tsenantsika.mg / agent123 (Fianarantsoa)")
+        print("    - hery.agent@tsenantsika.mg / agent123 (Antsirabe)")
+        print("    - lalaina.agent@tsenantsika.mg / agent123 (Mahajanga)")
+        print("    - tahiana.agent@tsenantsika.mg / agent123 (Toliara)")
+        print("    - voahangy.agent@tsenantsika.mg / agent123 (Antsiranana)")
+        print("  Citoyen : tiana.citoyen@tsenantsika.mg / citoyen123")
         
     except Exception as e:
         print(f"\nErreur durant la génération : {e}")

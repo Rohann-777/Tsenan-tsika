@@ -1,12 +1,8 @@
-"""
-Point d'entrée principal de l'application FastAPI pour Tsenan'tsika.
-"""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.backend.routes import (
     prix_routes, itineraire_routes, saisie_routes,
-    alerte_routes, auth_routes, admin_routes
+    alerte_routes, auth_routes, admin_routes, export_routes
 )
 
 
@@ -34,6 +30,7 @@ app.include_router(itineraire_routes.router)
 app.include_router(saisie_routes.router)
 app.include_router(alerte_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(export_routes.router)
 
 
 @app.get("/")
