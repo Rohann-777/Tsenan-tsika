@@ -40,7 +40,7 @@ retourner faux
 
 ### Structures de données utilisées
 
-La structure principale utilisée par cet algorithme est la table de hachage. Les hachages des rapports existants sont stockés en base de données avec leurs chaînes originales associées, ce qui permet une recherche en temps constant amorti. Cette approche correspond à la structure de table de hachage avec gestion des collisions qui fait partie des structures avancées requises par le projet.
+La structure principale associée à cet algorithme est l'empreinte de hachage. Les empreintes des rapports existants sont précalculées et conservées avec leurs chaînes originales, ce qui permet de remplacer une comparaison de chaînes par une comparaison de nombres entiers, bien plus rapide. Le principe relève de la famille des tables de hachage ; dans le prototype, le cache des empreintes est maintenu sous forme d'une liste de couples empreinte-chaîne, une mise en cache en base de données avec indexation par hachage constituant l'évolution naturelle pour un déploiement à grande échelle.
 
 ### Analyse de complexité
 
@@ -54,7 +54,7 @@ L'algorithme a été validé par six tests unitaires couvrant la détection corr
 
 ### Résultats expérimentaux
 
-Sur un jeu de données de mille rapports existants avec cent vérifications successives, les mesures de performance ont donné les résultats suivants. La solution naïve avec comparaison directe a pris 0,006372 secondes en moyenne par vérification. La solution Rabin-Karp avec hachages précalculés a pris 0,000074 secondes en moyenne par vérification. Le gain de performance est donc de 86 fois plus rapide en faveur de Rabin-Karp.
+Sur un jeu de données de deux mille rapports existants avec deux mille vérifications successives, la mesure étant moyennée sur cinq exécutions pour fiabiliser le résultat, les performances comparées sont les suivantes. La solution naïve compare directement les chaînes à chaque vérification, en reparcourant toute la liste des rapports existants. La solution Rabin-Karp précalcule une seule fois les empreintes de hachage des rapports existants, puis chaque vérification se réduit à des comparaisons de nombres entiers. Le gain de performance mesuré est de 76,9 fois plus rapide en faveur de Rabin-Karp. Ce résultat illustre un point essentiel : Rabin-Karp n'est avantageux que lorsque le coût du calcul des empreintes est amorti sur de nombreuses vérifications, ce qui correspond exactement au cas réel où de multiples agents soumettent des prix tout au long de la journée contre une base de rapports déjà hachés.
 
 ---
 
@@ -117,7 +117,7 @@ L'algorithme a été validé par cinq tests unitaires couvrant le calcul correct
 
 ### Résultats expérimentaux
 
-Sur un jeu de données de 10.000 éléments avec 1000 requêtes de somme d'intervalle, les mesures de performance ont donné les résultats suivants. La solution naïve avec parcours linéaire a pris 0,5286 secondes au total. La solution Fenwick Tree a pris 0,004684 secondes au total. Le gain de performance est donc de 112 fois plus rapide en faveur du Fenwick Tree.
+Sur un jeu de données de vingt mille éléments avec cinq mille requêtes de somme d'intervalle, la mesure étant moyennée sur cinq exécutions, les performances comparées sont les suivantes. La solution naïve recalcule chaque somme d'intervalle par parcours linéaire des éléments concernés. La solution Fenwick Tree répond à chaque requête en temps logarithmique grâce à ses sommes partielles. Le gain de performance mesuré est de 38,2 fois plus rapide en faveur du Fenwick Tree, et cet écart se creuse encore davantage à mesure que le volume de données et le nombre de requêtes augmentent.
 
 ---
 
@@ -198,7 +198,7 @@ L'algorithme a été validé par six tests unitaires couvrant le remplissage ini
 
 ### Résultats expérimentaux
 
-Sur un flux de 100.000 variations avec 100 consultations du top cinq, les mesures de performance ont donné les résultats suivants. La solution naïve avec tri complet à chaque consultation a pris 4,567967 secondes au total. La solution avec tas binaire a pris 0,068856 secondes au total. Le gain de performance est donc de 67 fois plus rapide en faveur du tas binaire.
+Sur un flux de cinquante mille variations avec consultation du top cinq, la mesure étant moyennée sur cinq exécutions, les performances comparées sont les suivantes. La solution naïve conserve toutes les variations et les trie pour extraire les cinq plus fortes. La solution avec tas binaire maintient en permanence les cinq plus fortes hausses en temps logarithmique par insertion. Le gain de performance mesuré est de 3,7 fois plus rapide en faveur du tas binaire. Ce gain est plus modéré que pour Rabin-Karp ou le Fenwick Tree, car la solution naïve de référence reste relativement légère : maintenir seulement cinq éléments ne représente pas un coût considérable au départ. L'avantage du tas binaire devient néanmoins déterminant lorsque le nombre d'insertions devient très grand.
 
 ---
 
@@ -261,7 +261,7 @@ L'algorithme a été validé par six tests unitaires couvrant le calcul correct 
 
 ### Résultats expérimentaux
 
-Sur un graphe aléatoire de cinq cents sommets avec environ cinq mille arêtes, les mesures de performance ont donné les résultats suivants. La solution naïve avec recherche linéaire du minimum a pris zéro virgule zéro deux sept sept neuf cinq secondes. La solution avec tas binaire a pris zéro virgule zéro zéro cinq huit zéro quatre secondes. Le gain de performance est donc de quatre virgule sept neuf fois plus rapide en faveur du tas binaire. Ce gain est plus modéré que pour les autres algorithmes car la différence de complexité asymptotique entre grand O de V au carré et grand O de la somme de V et E multipliée par le logarithme de V devient significative principalement sur de très grands graphes.
+Sur un graphe aléatoire de deux mille sommets avec environ trente mille arêtes, la mesure étant moyennée sur cinq exécutions, les performances comparées sont les suivantes. La solution naïve recherche le sommet de distance minimale par parcours linéaire de tous les sommets non visités à chaque étape. La solution optimisée utilise un tas binaire comme file de priorité pour obtenir ce minimum en temps logarithmique. Le gain de performance mesuré est de 6,0 fois plus rapide en faveur du tas binaire. Ce gain illustre que les deux versions résolvent correctement le problème, mais que l'usage d'une file de priorité efficace fait la différence, d'autant plus nettement que le graphe grandit, puisque l'écart entre la complexité quadratique de la version naïve et la complexité quasi-linéaire de la version optimisée se creuse sur les grands réseaux.
 
 ---
 
@@ -269,10 +269,12 @@ Sur un graphe aléatoire de cinq cents sommets avec environ cinq mille arêtes, 
 
 | Algorithme   | Solution naïve         | Solution optimisée     | Gain mesuré   |
 |--------------|------------------------|------------------------|---------------|
-| Rabin-Karp   | O(n × m)               | O(n + m)               | 86 fois       |
-| Fenwick Tree | O(n) par requête       | O(log n) par requête   | 112 fois      |
-| Top-k        | O(n log n) par requête | O(log k) par insertion | 67 fois       |
-| Dijkstra     | O(V²)                  | O((V + E) log V)       | 4,79 fois     |
+| Rabin-Karp   | O(n × m)               | O(n + m)               | 76,9 fois     |
+| Fenwick Tree | O(n) par requête       | O(log n) par requête   | 38,2 fois     |
+| Top-k        | O(n log n) par requête | O(log k) par insertion | 3,7 fois      |
+| Dijkstra     | O(V²)                  | O((V + E) log V)       | 6,0 fois      |
+
+Les gains indiqués ont été mesurés sur la machine de développement, chaque mesure étant moyennée sur cinq exécutions pour atténuer les variations ponctuelles. Ces facteurs ne sont pas des constantes absolues : ils dépendent du volume de données, du cas d'usage et de la qualité de la solution naïve de référence. Ils confirment néanmoins, dans tous les cas, la supériorité de la solution optimisée.
 
 ---
 
@@ -280,7 +282,7 @@ Sur un graphe aléatoire de cinq cents sommets avec environ cinq mille arêtes, 
 
 Le projet Tsenan'tsika couvre quatre familles d'algorithmes différentes, dépassant largement l'exigence minimale de deux familles imposée par le projet transversal. La famille Chaînes et Recherche est représentée par Rabin-Karp. La famille Optimisation est représentée par Fenwick Tree. La famille Streaming et Fenêtrage est représentée par Top-k. La famille Graphes et Réseaux est représentée par Dijkstra.
 
-Le projet utilise également cinq structures de données avancées qui dépassent l'exigence minimale de trois structures. Les structures utilisées sont le graphe avec représentation en liste d'adjacence, le tas binaire minimum, le Fenwick Tree, la table de hachage pour les empreintes Rabin-Karp, et l'ensemble des sommets visités dans Dijkstra qui peut être implémenté comme un Union-Find pour vérifier la connexité avant exécution.
+Le projet met en œuvre plusieurs structures de données avancées qui dépassent l'exigence minimale de trois structures. Les structures effectivement utilisées dans le prototype sont le graphe en liste d'adjacence, le tas binaire minimum qui sert à la fois de file de priorité pour Dijkstra et de support au Top-k, le Fenwick Tree, et le cache d'empreintes de hachage pour Rabin-Karp. À ces structures s'ajoutent, comme perspectives d'extension cohérentes avec l'architecture, une véritable table de hachage indexée en base pour les empreintes et une structure Union-Find permettant de vérifier la connexité du graphe des villes avant l'exécution de Dijkstra.
 
 ---
 

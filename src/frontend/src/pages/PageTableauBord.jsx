@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, AlertTriangle, TrendingUp, Sparkles,
-  Calendar, MapPin, Info, Activity, Download
+  Calendar, MapPin, Info, Activity, Download, Tag
 } from 'lucide-react';
 import { serviceAuth, serviceTableauBord, serviceExport } from '../services/api';
 import '../styles/PageTableauBord.css';
@@ -246,7 +246,38 @@ function PageTableauBord() {
           )}
         </div>
       </div>
+      <div className="section-donnees">
+          <div className="entete-section-donnees">
+            <div className="titre-avec-icone">
+              <Tag size={22} color="var(--couleur-primaire)" />
+              <h2>Prix moyens récents</h2>
+            </div>
+            <span className="badge-periode">30 derniers jours</span>
+          </div>
 
+          {donnees?.prix_moyens && donnees.prix_moyens.length > 0 ? (
+            <div className="grille-prix-moyens">
+              {donnees.prix_moyens.map((item) => (
+                <div key={item.produit_id} className="carte-prix-moyen">
+                  <div className="nom-produit-prix">{item.produit_nom}</div>
+                  {item.prix_moyen !== null ? (
+                    <div className="valeur-prix-moyen">
+                      {item.prix_moyen.toLocaleString('fr-FR')}
+                      <span className="unite-prix-moyen"> Ar / {item.unite}</span>
+                    </div>
+                  ) : (
+                    <div className="prix-indisponible">Aucune donnée récente</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="message-vide-section">
+              Aucun prix moyen disponible pour le moment.
+            </p>
+          )}
+        </div>
+        
       {/* Section explicative en bas pour contextualiser le tableau de bord. */}
       <div className="section-explicative">
         <div className="icone-info">

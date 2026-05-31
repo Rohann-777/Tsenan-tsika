@@ -20,9 +20,13 @@ class EntreeTopK(BaseModel):
     produit_nom: str
     variation_pourcent: float
     rang: int
-
-
+class PrixMoyenReponse(BaseModel):
+    produit_id: int
+    produit_nom: str
+    unite: str
+    prix_moyen: float | None = None
 class TableauBordReponse(BaseModel):
     nombre_alertes_actives: int
     alertes_recentes: List[AlerteDetaillee]
     top_5_hausses: List[EntreeTopK]
+    prix_moyens: list[PrixMoyenReponse]

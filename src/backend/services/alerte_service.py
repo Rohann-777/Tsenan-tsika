@@ -61,8 +61,10 @@ class AlerteService:
                     "rang": rang
                 })
 
+        prix_moyens = self.prix_repository.calculer_prix_moyens_recents(db, jours=30)
         return {
             "nombre_alertes_actives": nombre_alertes,
             "alertes_recentes": alertes_enrichies,
-            "top_5_hausses": top_5_enrichi
+            "top_5_hausses": top_5_enrichi,
+            "prix_moyens": prix_moyens
         }

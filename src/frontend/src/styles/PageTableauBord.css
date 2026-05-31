@@ -105,7 +105,7 @@
   box-shadow: var(--ombre-sm);
   display: flex;
   flex-direction: column;
-  min-height: 400px;
+  min-height: 300px;
 }
 
 .entete-section-donnees {
@@ -422,4 +422,67 @@
   border-radius: var(--rayon-md);
   margin-bottom: var(--espace-lg);
   font-size: 0.9375rem;
+}
+
+.grille-prix-moyens {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--espace-md);
+  margin-top: var(--espace-md);
+}
+
+.carte-prix-moyen {
+  background-color: var(--fond-principal);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-md);
+  padding: var(--espace-md);
+  transition: all var(--transition-standard);
+}
+
+.carte-prix-moyen:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ombre-md);
+  border-color: var(--couleur-primaire);
+}
+
+.nom-produit-prix {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--texte-secondaire);
+  margin-bottom: var(--espace-sm);
+}
+
+.valeur-prix-moyen {
+  font-family: var(--police-titre);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--couleur-primaire);
+}
+
+.unite-prix-moyen {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--texte-discret);
+}
+
+.prix-indisponible {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--texte-discret);
+  padding: var(--espace-xs) 0;
+}
+
+.badge-periode {
+  background-color: var(--fond-principal);
+  color: var(--texte-discret);
+  padding: var(--espace-xs) var(--espace-md);
+  border-radius: var(--rayon-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.message-vide-section {
+  color: var(--texte-discret);
+  font-style: italic;
+  padding: var(--espace-md) 0;
 }

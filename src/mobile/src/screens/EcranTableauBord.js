@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import {
   LayoutDashboard, AlertTriangle, TrendingUp, Calendar,
-  MapPin, Activity, Info, Sparkles
+  MapPin, Activity, Info, Sparkles, Tag
 } from 'lucide-react-native';
 import { serviceTableauBord } from '../services/api';
 import { utiliserAuth } from '../contexts/ContexteAuth';
@@ -208,6 +208,42 @@ export default function EcranTableauBord() {
           )}
         </View>
 
+        {/* Section des prix moyens récents par produit. Information de
+        référence qui complète la surveillance des anomalies. */}
+        <View style={styles.section}>
+          <View style={styles.entetSection}>
+            <View style={styles.entetSectionGauche}>
+              <Tag size={20} color={couleurs.primaire} />
+              <Text style={styles.titreSection}>Prix moyens récents</Text>
+            </View>
+            <View style={styles.compteurBadge}>
+              <Text style={styles.texteCompteurBadge}>30 jours</Text>
+            </View>
+          </View>
+
+          {donnees?.prix_moyens && donnees.prix_moyens.length > 0 ? (
+            <View style={styles.listePrixMoyens}>
+              {donnees.prix_moyens.map((item) => (
+                <View key={item.produit_id} style={styles.lignePrixMoyen}>
+                  <Text style={styles.nomProduitPrixMoyen}>{item.produit_nom}</Text>
+                  {item.prix_moyen !== null ? (
+                    <Text style={styles.valeurPrixMoyen}>
+                      {item.prix_moyen.toLocaleString('fr-FR')}
+                      <Text style={styles.unitePrixMoyen}> Ar / {item.unite}</Text>
+                    </Text>
+                  ) : (
+                    <Text style={styles.prixIndisponible}>Aucune donnée</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.descriptionEtatVide}>
+              Aucun prix moyen disponible pour le moment.
+            </Text>
+          )}
+        </View>
+        
         {/* Section explicative en bas. */}
         <View style={styles.sectionExplicative}>
           <View style={styles.iconeInfo}>
@@ -525,5 +561,37 @@ const styles = StyleSheet.create({
   fontSize: tailles.texteSm,
   color: couleurs.infoTexte,
   fontWeight: '600',
+  },
+  listePrixMoyens: {
+    gap: espacements.sm,
+  },
+  lignePrixMoyen: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: couleurs.fond,
+    paddingVertical: espacements.sm,
+    paddingHorizontal: espacements.md,
+    borderRadius: rayons.md,
+  },
+  nomProduitPrixMoyen: {
+    fontSize: tailles.texteBase,
+    fontWeight: '600',
+    color: couleurs.textePrincipal,
+  },
+  valeurPrixMoyen: {
+    fontSize: tailles.texteBase,
+    fontWeight: '800',
+    color: couleurs.primaire,
+  },
+  unitePrixMoyen: {
+    fontSize: tailles.texteSm,
+    fontWeight: '500',
+    color: couleurs.texteDiscret,
+  },
+  prixIndisponible: {
+    fontSize: tailles.texteSm,
+    fontStyle: 'italic',
+    color: couleurs.texteDiscret,
   },
 });

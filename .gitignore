@@ -1,25 +1,43 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-.env
+# ============================================================
+#  .gitignore — Projet Tsenan'tsika
+# ============================================================
+
+# --- Python / Backend ---
 venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
 *.egg-info/
+.pytest_cache/
+.mypy_cache/
 
-# Node / React
+# Variables d'environnement (contient le mot de passe de la base !)
+.env
+*.env
+
+# --- Node / Frontend & Mobile ---
 node_modules/
-build/
 dist/
-.env.local
+build/
+.expo/
+.expo-shared/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Base de données
-*.db
-*.sqlite
-
-# IDE
+# --- Éditeurs / OS ---
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
+*.swp
+
+# --- Fichiers temporaires / sortie ---
+*.tmp
+*.bak
+coverage/
+.coverage
+htmlcov/

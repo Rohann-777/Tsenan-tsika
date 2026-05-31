@@ -30,3 +30,26 @@ class PrixRepository:
     
     def lister_villes(self, db: Session):
         return db.query(Ville).order_by(Ville.nom).all()
+    
+    def calculer_prix_moyens_recents(self, db: Session, jours: int = 30):
+        date_limite = datetime.now() - timedelta(days=jours)
+        produits = db.query(Produit).order_by(Produit.nom_fr).all()
+
+        resultats = []
+        for produit in produits:
+            prix = db.query(PrixMarche).filter(
+                PrixMarche.produit_id == produit.id,
+                PrixMarche.date_saisie >= date_limite
+            ).all()
+
+            moyenne = None
+            if prix:
+                moyenne = round(sum(p.prix for p in prix) / len(prix), 2)
+
+            resultats.append({
+                "produit_id": produit.id,
+                "produit_nom": produit.nom_fr,
+                "unite": produit.unite,
+                "prix_moyen": moyenne
+            })
+        return resultats

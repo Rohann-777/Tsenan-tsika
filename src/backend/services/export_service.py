@@ -165,36 +165,29 @@ class ExportService:
     def _ajouter_prix_moyens(self, pdf: RapportPDF, db: Session):
         self._titre_section(pdf, "Prix moyens récents par produit")
 
-        produits = self.prix_repository.lister_produits(db)
+        prix_moyens = self.prix_repository.calculer_prix_moyens_recents(db, jours=30)
+
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_fill_color(*VERT)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(110, 8, "  Produit", border=0, fill=True)
+        pdf.cell(80, 8, "  Prix moyen (Ariary)", border=0, fill=True,
+                 new_x="LMARGIN", new_y="NEXT")
 
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(*GRIS)
-        for index, produit in enumerate(produits):
-            # Calcul de la moyenne du produit sur toutes les villes
-            moyenne = self._calculer_moyenne_produit(db, produit.id)
-
+        for index, item in enumerate(prix_moyens):
             fill = index % 2 == 0
             if fill:
                 pdf.set_fill_color(*GRIS_CLAIR)
-            pdf.cell(110, 7, f"  {produit.nom_fr} ({produit.unite})",
+            pdf.cell(110, 7, f"  {item['produit_nom']} ({item['unite']})",
                      border=0, fill=fill)
-            valeur = f"{moyenne:,.0f}".replace(",", " ") if moyenne else "Aucune donnée"
+            if item["prix_moyen"] is not None:
+                valeur = f"{item['prix_moyen']:,.0f}".replace(",", " ")
+            else:
+                valeur = "Aucune donnée"
             pdf.cell(80, 7, f"  {valeur}", border=0, fill=fill,
                      new_x="LMARGIN", new_y="NEXT")
-
-    def _calculer_moyenne_produit(self, db: Session, produit_id: int):
-        from datetime import timedelta
-        from src.backend.models.modeles import PrixMarche
-
-        date_limite = datetime.now() - timedelta(days=30)
-        prix = db.query(PrixMarche).filter(
-            PrixMarche.produit_id == produit_id,
-            PrixMarche.date_saisie >= date_limite
-        ).all()
-
-        if not prix:
-            return None
-        return sum(p.prix for p in prix) / len(prix)
 
     def _titre_section(self, pdf: RapportPDF, titre: str):
         pdf.ln(2)

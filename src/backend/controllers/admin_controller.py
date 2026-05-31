@@ -2,7 +2,6 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from src.backend.services.admin_service import AdminService
 
-
 class AdminController:
     
     def __init__(self):
